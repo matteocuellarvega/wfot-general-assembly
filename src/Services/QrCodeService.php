@@ -3,8 +3,8 @@ namespace WFOT\Services;
 
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
-use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 
 class QrCodeService
@@ -17,15 +17,15 @@ class QrCodeService
      */
     public static function generateDataUri(string $data): string
     {
-        $result = Builder::create()
+        $result = (new Builder())
             ->writer(new PngWriter())
             ->writerOptions([])
             ->data($data)
             ->encoding(new Encoding('UTF-8'))
-            ->errorCorrectionLevel(new ErrorCorrectionLevelHigh())
+            ->errorCorrectionLevel(ErrorCorrectionLevel::High)
             ->size(300)
             ->margin(10)
-            ->roundBlockSizeMode(new RoundBlockSizeModeMargin())
+            ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
             ->build();
 
         return $result->getDataUri();
