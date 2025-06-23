@@ -8,6 +8,7 @@
     <div class="booking-details">
       <h4>Booking details</h4>
       <p><strong>Booking ID:</strong> <?=htmlspecialchars($booking['id'])?></p>
+      <p><strong>Registration:</strong> <?=htmlspecialchars($booking['fields']['First Name'][0] ?? 'N/A')?> <?=htmlspecialchars($booking['fields']['Last Name'][0] ?? 'N/A')?> (Registration ID: <?=htmlspecialchars($booking['fields']['Registration'][0] ?? 'N/A')?>)</p>
       <p><strong>Payment method:</strong> <?=htmlspecialchars($booking['fields']['Payment Method'] ?? 'N/A')?></p>
       <p><strong>Payment status:</strong> <?=htmlspecialchars($booking['fields']['Payment Status'] ?? 'N/A')?></p>
     </div>
@@ -43,12 +44,13 @@
   </table>
 </article>
 
-<div class="receipt-footer no-print">
-  <p>A receipt has been emailed to <?=safe_email($booking['fields']['Email'][0] ?? '')?>. If you do not receive it, please check your spam folder or contact us for assistance.</p>
+<div class="confirmation-footer no-print">
+  <p>A copy of this confirmation has been emailed to <?=safe_email($booking['fields']['Email'][0] ?? '')?>. If you do not receive it, please check your spam folder or contact us for assistance.</p>
+  <p>This confirmation is not proof of payment; if you paid via PayPal, refer to your PayPal receipt, and if you are paying in cash, you will receive a receipt upon payment.</p>
   <p>Thank you for your booking!</p>
 </div>
 
-<div class="receipt-footer only-print">
-  <p>Please keep a copy of your receipt.</p>
+<div class="confirmation-footer only-print">
+  <p>Please keep a copy of your confirmation. This confirmation is not proof of payment; if you paid via PayPal, refer to your PayPal receipt, and if you are paying in cash, you will receive a receipt upon payment.</p>
   <p>Thank you for your booking!</p>
 </div>
