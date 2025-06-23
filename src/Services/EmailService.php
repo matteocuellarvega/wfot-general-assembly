@@ -13,7 +13,7 @@ class EmailService
 
     public static function sendConfirmation(string $to, string $name, string $pdfPath, string $meetingId): bool
     {
-        self::logDebug("sendConfirmation called for to: $to, name: $name, pdfPath: $pdfPath");
+        self::logDebug("sendConfirmation called for to: $to, name: $name, pdfPath: $pdfPath, meetingId: $meetingId");
         $mail = new PHPMailer(true);
         $mail->CharSet = "UTF-8";
         $mail->isSMTP();
@@ -52,7 +52,7 @@ class EmailService
      * @param string $name Recipient name
      * @return string Email HTML body
      */
-    private static function generateConfirmationEmailBody(string $name): string
+    private static function generateConfirmationEmailBody(string $name, string $meetingId): string
     {
         return '
         <img src="' . rtrim(env('APP_URL'), '/') . '/assets/img/logo-'. strtolower($meetingId) .'.png" alt="WFOT Logo" style="max-width: 200px;">
