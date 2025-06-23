@@ -53,7 +53,7 @@ try {
     $token = TokenService::generate($registrationId);
 
     // Construct the full URL using the base URL from .env for flexibility
-    $baseUrl = rtrim(env('APP_URL', 'https://general-assembly.wfot.org'), '/');
+    $baseUrl = rtrim(env('APP_URL'), '/');
     $bookingUrl = $baseUrl . '/bookings?registration=' . urlencode($registrationId) . '&tok=' . urlencode($token);
 
     http_response_code(200);

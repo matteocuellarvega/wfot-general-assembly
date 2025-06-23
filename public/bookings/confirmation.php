@@ -20,16 +20,16 @@ if (!$validToken) {
     exit;
 }
 
-$receiptPath = dirname(__DIR__, 2) . '/storage/receipts/' . basename($bookingId) . '.pdf';
+$confirmationPath = dirname(__DIR__, 2) . '/storage/confirmations/' . basename($bookingId) . '.pdf';
 
-if (!file_exists($receiptPath)) {
+if (!file_exists($confirmationPath)) {
     http_response_code(404);
-    echo 'Receipt not found.';
+    echo 'Confirmation not found.';
     exit;
 }
 
 header('Content-Type: application/pdf');
-header('Content-Disposition: inline; filename="receipt.pdf"');
-header('Content-Length: ' . filesize($receiptPath));
-readfile($receiptPath);
+header('Content-Disposition: inline; filename="confirmation.pdf"');
+header('Content-Length: ' . filesize($confirmationPath));
+readfile($confirmationPath);
 exit;

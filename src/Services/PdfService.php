@@ -6,7 +6,7 @@ use Dompdf\Options;
 
 class PdfService
 {
-    public static function generateReceipt(string $html, string $filePath): void
+    public static function generateConfirmation(string $html, string $filePath): void
     {
         $options = new Options();
         $options->set('isRemoteEnabled', true);

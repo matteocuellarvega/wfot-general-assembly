@@ -68,22 +68,22 @@ try {
     }
 
     // Ensure storage directory exists and is writable
-    $receiptDir = dirname(__DIR__, 3) . '/storage/receipts/';
-    if (!is_dir($receiptDir)) {
-        mkdir($receiptDir, 0775, true);
+    $confirmationDir = dirname(__DIR__, 3) . '/storage/confirmations/';
+    if (!is_dir($confirmationDir)) {
+        mkdir($confirmationDir, 0775, true);
     }
-    $file = $receiptDir . $bookingId . '.pdf';
+    $file = $confirmationDir . $bookingId . '.pdf';
 
-    PdfService::generateReceipt($booking, $items, $file);
+    PdfService::generateConfirmation($booking, $items, $file);
 
     // email - Use email from booking record
     $recipientEmail = $booking['fields']['Email'][0] ?? $payerEmail; // Fallback to payer email if booking email missing
     $recipientName = $booking['fields']['First Name'] ?? trim($payerName); // Fallback to payer name
 
     if ($recipientEmail) {
-        EmailService::sendReceipt($recipientEmail, $recipientName, $file);
+        EmailService::sendConfirmation($recipientEmail, $recipientName, $file);
     } else {
-        error_log("No recipient email found for booking $bookingId. Receipt not sent.");
+        error_log("No recipient email found for booking $bookingId. Confirmation not sent.");
     }
 
     // remove file

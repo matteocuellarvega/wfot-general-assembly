@@ -71,27 +71,27 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
     include dirname(__DIR__,2).'/templates/booking-footer.php';
     $html = ob_get_clean();
 
-    $receiptDir = dirname(__DIR__, 2) . '/storage/receipts';
-    if (!is_dir($receiptDir)) {
-        mkdir($receiptDir, 0777, true);
+    $confirmationDir = dirname(__DIR__, 2) . '/storage/confirmations';
+    if (!is_dir($confirmationDir)) {
+        mkdir($confirmationDir, 0777, true);
     }
-    $receiptPath = $receiptDir . '/' . $booking['id'] . '.pdf';
+    $confirmationPath = $confirmationDir . '/' . $booking['id'] . '.pdf';
 
-    if (!file_exists($receiptPath)) {
-        PdfService::generateReceipt($html, $receiptPath);
+    if (!file_exists($confirmationPath)) {
+        PdfService::generateConfirmation($html, $confirmationPath);
 
-        // Generate a token for the public receipt URL
-        $receiptToken = TokenService::generate($booking['id']);
+        // Generate a token for the public confirmation URL
+        $confirmationToken = TokenService::generate($booking['id']);
         // Construct the public URL
-        $receiptUrl = rtrim(env('APP_URL'), '/') . '/bookings/receipt.php?booking=' . $booking['id'] . '&tok=' . $receiptToken;
+        $confirmationUrl = rtrim(env('APP_URL'), '/') . '/bookings/confirmation.php?booking=' . $booking['id'] . '&tok=' . $confirmationToken;
         // Update the booking record in Airtable with the URL
-        $bookingRepo->update($booking['id'], ['Confirmation' => $receiptUrl]);
+        $bookingRepo->update($booking['id'], ['Confirmation' => $confirmationUrl]);
 
         // Send email with PDF attachment
         $userEmail = $reg['fields']['Email'] ?? null;
         $userName = ($reg['fields']['First Name'] ?? '') . ' ' . ($reg['fields']['Last Name'] ?? '');
         if ($userEmail) {
-            EmailService::sendReceipt($userEmail, $userName, $receiptPath);
+            EmailService::sendConfirmation($userEmail, $userName, $confirmationPath);
         }
     }
 
