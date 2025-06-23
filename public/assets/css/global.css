@@ -35,19 +35,24 @@ body {
     margin-block-end: 2rem;
 }
 .booking-info{
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    align-content: flex-start;
-    justify-content: flex-start;
-    align-items: flex-start;
 }
 .booking-details{
-    flex: 1;
-    min-width: 220px;
+    float: left;
+}
+.booking-qr-code{
+    float: right;
+    margin-left: 2rem;
 }
 .booking-details p{
     margin-bottom: calc(var(--pico-typography-spacing-vertical) / 2);
+}
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.items-table th,
+.items-table td {
+    text-align: left;
 }
 .items-table td:last-child,
 .items-table th:last-child {
@@ -121,6 +126,7 @@ body {
 @media print{
     body{
         color: #000000 !important;
+        font-family: sans-serif !important;
     }
     @page {
         margin: 0;
@@ -134,5 +140,13 @@ body {
     }
     .only-print {
         display: block !important;
+    }
+    article{
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .items-table th,
+    .items-table td{
+        padding-left: 0;
     }
 }
