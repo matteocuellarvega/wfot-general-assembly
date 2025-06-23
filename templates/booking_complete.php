@@ -4,21 +4,21 @@
 <h2>Booking confirmation</h2>
 
 <article>
-  <h3>Booking details</h3>
   <div class="booking-info" style="display: flex;">
     <div class="booking-details">
+      <h4>Booking details</h4>
       <p><strong>Booking ID:</strong> <?=htmlspecialchars($booking['id'])?></p>
       <p><strong>Payment method:</strong> <?=htmlspecialchars($booking['fields']['Payment Method'] ?? 'N/A')?></p>
       <p><strong>Payment status:</strong> <?=htmlspecialchars($booking['fields']['Payment Status'] ?? 'N/A')?></p>
     </div>
     <div class="booking-qr-code">
-      <img src="<?= $qrCodeDataUri ?? '' ?>" alt="Booking QR Code" style="max-width: 200px;">
+      <img src="<?= $qrCodeDataUri ?? '' ?>" alt="Booking QR Code" style="max-width: 180px;">
     </div>
   </div>
 </article>
 
 <article>
-  <h3>Items</h3>
+  <h4>Items</h4>
   <table class="items-table">
     <thead>
       <tr>
@@ -41,12 +41,6 @@
       </tr>
     </tfoot>
   </table>
-</article>
-
-<article>
-  <h3>Your QR Code</h3>
-  <p>Present this QR code for check-in.</p>
-  <img src="<?= $qrCodeDataUri ?? '' ?>" alt="Booking QR Code" style="max-width: 200px;">
 </article>
 
 <p>A receipt has been emailed to 

@@ -25,11 +25,26 @@ body {
     }
 }
 #logo {
-    height: 96px;
+    height: 80px;
     width: auto;
     display: block;
     margin-block-start: 2rem;
     margin-block-end: 2rem;
+}
+.booking-info{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-content: flex-start;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+.booking-details{
+    flex: 1;
+    min-width: 220px;
+}
+.booking-details p{
+    margin-bottom: calc(var(--pico-typography-spacing-vertical) / 2);
 }
 .items-table td:last-child,
 .items-table th:last-child {
