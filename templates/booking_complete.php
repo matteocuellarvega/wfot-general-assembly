@@ -36,8 +36,8 @@
     </tbody>
     <tfoot>
       <tr>
-        <td><strong>Total</strong></td>
-        <td><strong>$<?=number_format($booking['fields']['Total'] ?? 0, 2)?></strong></td>
+        <td>Total</td>
+        <td>$<?=number_format($booking['fields']['Total'] ?? 0, 2)?></td>
       </tr>
     </tfoot>
   </table>

@@ -10,14 +10,17 @@ body {
     font-family: 'Barlow', sans-serif;
     font-weight: 200;
 }
+
 .only-print {
     display: none;
 }
-@media only screen and (prefers-color-scheme: dark){
+
+@media only screen and (prefers-color-scheme: dark) {
     #logo {
         filter: invert(1);
     }
-    body{
+
+    body {
         --pico-color: #FFFFFF;
         --pico-h1-color: #FFFFFF;
         --pico-h2-color: #FFFFFF;
@@ -27,6 +30,7 @@ body {
         --pico-h6-color: #FFFFFF;
     }
 }
+
 #logo {
     height: 80px;
     width: auto;
@@ -34,33 +38,39 @@ body {
     margin-block-start: 2rem;
     margin-block-end: 2rem;
 }
-.booking-info{
+
+.booking-info {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: flex-start;
+    justify-content: flex-start;
 }
-.booking-details{
-    float: left;
+
+.booking-details {
+    flex: 1;
 }
-.booking-qr-code{
-    float: right;
-    margin-left: 2rem;
-}
-.booking-details p{
+
+.booking-details p {
     margin-bottom: calc(var(--pico-typography-spacing-vertical) / 2);
 }
-.items-table-container{
-    clear: both;
-}
+
 .items-table {
     width: 100%;
     border-collapse: collapse;
 }
+
 .items-table th,
 .items-table td {
     text-align: left;
 }
+
 .items-table td:last-child,
 .items-table th:last-child {
     text-align: right;
 }
+
 /* barlow-200 - latin */
 @font-face {
     font-display: swap;
@@ -69,7 +79,7 @@ body {
     font-weight: 200;
     src: url('../fonts/barlow-v12-latin-200.woff2') format('woff2'),
         url('../fonts/barlow-v12-latin-200.ttf') format('truetype');
-    
+
 }
 
 /* barlow-200italic - latin */
@@ -80,7 +90,7 @@ body {
     font-weight: 200;
     src: url('../fonts/barlow-v12-latin-200italic.woff2') format('woff2'),
         url('../fonts/barlow-v12-latin-200italic.ttf') format('truetype');
-    
+
 }
 
 /* barlow-regular - latin */
@@ -91,7 +101,7 @@ body {
     font-weight: 400;
     src: url('../fonts/barlow-v12-latin-regular.woff2') format('woff2'),
         url('../fonts/barlow-v12-latin-regular.ttf') format('truetype');
-    
+
 }
 
 /* barlow-italic - latin */
@@ -102,7 +112,7 @@ body {
     font-weight: 400;
     src: url('../fonts/barlow-v12-latin-italic.woff2') format('woff2'),
         url('../fonts/barlow-v12-latin-italic.ttf') format('truetype');
-    
+
 }
 
 /* barlow-600 - latin */
@@ -113,7 +123,7 @@ body {
     font-weight: 600;
     src: url('../fonts/barlow-v12-latin-600.woff2') format('woff2'),
         url('../fonts/barlow-v12-latin-600.ttf') format('truetype');
-    
+
 }
 
 /* barlow-600italic - latin */
@@ -126,30 +136,62 @@ body {
         url('../fonts/barlow-v12-latin-600italic.ttf') format('truetype');
 }
 
-@media print{
-    body{
+@media print {
+    body {
         color: #000000 !important;
         font-family: sans-serif !important;
+        font-weight: normal;
     }
+
     @page {
         margin: 0;
     }
+
     .container {
         max-width: 100%;
         padding: 0 2rem;
     }
+
     .no-print {
         display: none;
     }
+
     .only-print {
         display: block !important;
     }
-    article{
+
+    article {
         padding-left: 0;
         padding-right: 0;
+        padding-top: 2em;
     }
+
     .items-table th,
-    .items-table td{
+    .items-table td {
         padding-left: 0;
+    }
+
+    .booking-info {
+        display: block;
+    }
+
+    .booking-details {
+        float: left;
+    }
+
+    .booking-qr-code {
+        float: right;
+        margin-left: 2rem;
+    }
+
+    .items-table-container {
+        clear: both;
+    }
+
+    tfoot td,
+    tfoot th,
+    thead td,
+    thead th {
+        font-weight: bold;
     }
 }
