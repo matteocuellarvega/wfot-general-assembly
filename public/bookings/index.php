@@ -64,9 +64,9 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
 
     $qrCodeDataUri = QrCodeService::generateDataUri($booking['id']);
 
-    $receiptDir = dirname(__DIR__, 2) . '/receipts';
+    $receiptDir = dirname(__DIR__, 2) . '/storage/receipts';
     if (!is_dir($receiptDir)) {
-        mkdir($receiptDir, 0755, true);
+        mkdir($receiptDir, 0777, true);
     }
     $receiptPath = $receiptDir . '/' . $booking['id'] . '.pdf';
     PdfService::generateReceipt($booking, $items, $reg, $qrCodeDataUri, $receiptPath);
