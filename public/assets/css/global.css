@@ -31,6 +31,10 @@ body {
     margin-block-start: 2rem;
     margin-block-end: 2rem;
 }
+.items-table td:last-child,
+.items-table th:last-child {
+    text-align: right;
+}
 /* barlow-200 - latin */
 @font-face {
     font-display: swap;

@@ -12,7 +12,7 @@
 
 <article>
   <h3>Items</h3>
-  <table>
+  <table class="items-table">
     <thead>
       <tr>
         <th>Item</th>
@@ -36,7 +36,13 @@
   </table>
 </article>
 
-<p>Receipt has been emailed to 
+<article>
+  <h3>Your QR Code</h3>
+  <p>Present this QR code for check-in.</p>
+  <img src="<?= $qrCodeDataUri ?? '' ?>" alt="Booking QR Code" style="max-width: 200px;">
+</article>
+
+<p>A receipt has been emailed to 
 <?php if ($validToken ?? false): ?>
   <?=htmlspecialchars($booking['fields']['Email'][0] ?? 'N/A')?>
 <?php else: ?>

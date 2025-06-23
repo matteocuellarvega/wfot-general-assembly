@@ -7,6 +7,8 @@ use WFOT\Repository\RegistrationRepository;
 use WFOT\Repository\ItemRepository;
 use WFOT\Services\TokenService;
 use WFOT\Services\AirtableService; // Make sure this is included
+use WFOT\Services\QrCodeService;
+use WFOT\Services\PdfService;
 
 $bookingId = $_GET['booking'] ?? null;
 $registrationId = $_GET['registration'] ?? null;
@@ -59,8 +61,19 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
         }
     }
     $items = $itemRecords; // Assign the fetched records to $items for the template
+
+    $qrCodeDataUri = QrCodeService::generateDataUri($booking['id']);
+
+    $receiptDir = dirname(__DIR__, 2) . '/receipts';
+    if (!is_dir($receiptDir)) {
+        mkdir($receiptDir, 0755, true);
+    }
+    $receiptPath = $receiptDir . '/' . $booking['id'] . '.pdf';
+    PdfService::generateReceipt($booking, $items, $reg, $qrCodeDataUri, $receiptPath);
+
     include dirname(__DIR__,2).'/templates/booking-header.php';
     include dirname(__DIR__,2).'/templates/booking_complete.php';
+    include dirname(__DIR__,2).'/templates/booking-footer.php';
     // Pass $validToken to the template
     exit;
 } else {

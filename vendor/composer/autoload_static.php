@@ -56,15 +56,24 @@ class ComposerStaticInit0ae2c45e9b0d0d4f921f059b0e14055e
         array (
             'FontLib\\' => 8,
         ),
+        'E' => 
+        array (
+            'Endroid\\QrCode\\' => 15,
+        ),
         'D' => 
         array (
             'Dotenv\\' => 7,
             'Dompdf\\' => 7,
+            'DASPRiD\\Enum\\' => 13,
         ),
         'C' => 
         array (
             'Core\\' => 5,
             'CoreInterfaces\\' => 15,
+        ),
+        'B' => 
+        array (
+            'BaconQrCode\\' => 12,
         ),
     );
 
@@ -133,6 +142,10 @@ class ComposerStaticInit0ae2c45e9b0d0d4f921f059b0e14055e
         array (
             0 => __DIR__ . '/..' . '/dompdf/php-font-lib/src/FontLib',
         ),
+        'Endroid\\QrCode\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/endroid/qr-code/src',
+        ),
         'Dotenv\\' => 
         array (
             0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
@@ -141,6 +154,10 @@ class ComposerStaticInit0ae2c45e9b0d0d4f921f059b0e14055e
         array (
             0 => __DIR__ . '/..' . '/dompdf/dompdf/src',
         ),
+        'DASPRiD\\Enum\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/dasprid/enum/src',
+        ),
         'Core\\' => 
         array (
             0 => __DIR__ . '/..' . '/apimatic/core/src',
@@ -148,6 +165,10 @@ class ComposerStaticInit0ae2c45e9b0d0d4f921f059b0e14055e
         'CoreInterfaces\\' => 
         array (
             0 => __DIR__ . '/..' . '/apimatic/core-interfaces/src',
+        ),
+        'BaconQrCode\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/bacon/bacon-qr-code/src',
         ),
     );
 
