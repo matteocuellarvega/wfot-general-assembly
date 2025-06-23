@@ -56,9 +56,9 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
         }
     }
     $items = $itemRecords; // Assign the fetched records to $items for the template
-    include dirname(__DIR__,2).'/templates/header.php';
+    include dirname(__DIR__,2).'/templates/booking-header.php';
     include dirname(__DIR__,2).'/templates/booking_complete.php';
-    include dirname(__DIR__,2).'/templates/footer.php';
+    include dirname(__DIR__,2).'/templates/booking-footer.php';
     exit;
 } else {
     // For Pending bookings, fetch already selected items for pre-population.
@@ -72,6 +72,6 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
     $items = $itemRepo->listForMeeting($reg['fields']['Meeting ID'], $reg['fields']['Role']);
 }
 
-include dirname(__DIR__,2).'/templates/header.php';
+include dirname(__DIR__,2).'/templates/booking-header.php';
 include dirname(__DIR__,2).'/templates/booking_form.php';
-include dirname(__DIR__,2).'/templates/footer.php';
+include dirname(__DIR__,2).'/templates/booking-footer.php';
