@@ -46,6 +46,9 @@ body {
 .booking-details p{
     margin-bottom: calc(var(--pico-typography-spacing-vertical) / 2);
 }
+.items-table-container{
+    clear: both;
+}
 .items-table {
     width: 100%;
     border-collapse: collapse;

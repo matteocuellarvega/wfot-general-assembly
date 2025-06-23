@@ -3,8 +3,8 @@
 ?>
 <h2>Booking confirmation</h2>
 
-<article>
-  <div class="booking-info" style="display: flex;">
+<article class="booking-info-container">
+  <div class="booking-info">
     <div class="booking-details">
       <h4>Booking details</h4>
       <p><strong>Booking ID:</strong> <?=htmlspecialchars($booking['id'])?></p>
@@ -17,7 +17,7 @@
   </div>
 </article>
 
-<article>
+<article class="items-table-container">
   <h4>Items</h4>
   <table class="items-table">
     <thead>
