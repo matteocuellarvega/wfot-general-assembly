@@ -45,5 +45,5 @@ $selectedItems = $selectedItems ?? [];
   <button type="submit" id="confirm">Confirm booking</button>
 </form>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://www.paypal.com/sdk/js?client-id=<?=env('PAYPAL_CLIENT_ID')?>&currency=GBP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=<?=env('PAYPAL_CLIENT_ID')?>&currency=USD"></script>
 <script src="/bookings/assets/js/booking.js"></script>

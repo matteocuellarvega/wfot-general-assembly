@@ -60,8 +60,7 @@ class EmailService
         <p>Dear ' . htmlspecialchars($name) . ',</p>
         <p>Thank you for your booking for the WFOT General Assembly. Please find your booking confirmation attached to this email.</p>
         <p>If you have any questions or need assistance, please contact us at <a href="mailto:admin@wfot.org">admin@wfot.org</a>.</p>
-        <p>Best regards,<br>WFOT Team</p>
-        &copy; ' . date('Y') . ' World Federation of Occupational Therapists';
+        <p>Kind regards,<br>WFOT Organisational Management Team</p>';
     }
     
 }

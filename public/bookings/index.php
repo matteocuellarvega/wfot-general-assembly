@@ -11,8 +11,14 @@ use WFOT\Services\QrCodeService;
 use WFOT\Services\PdfService;
 use WFOT\Services\EmailService;
 
-$bookingId = $_GET['booking'] ?? null;
-$registrationId = $_GET['registration'] ?? null;
+$bookingId = isset($_GET['booking'])
+    ? preg_replace('/[^a-zA-Z0-9]/', '', $_GET['booking'])
+    : null;
+
+$registrationId = isset($_GET['registration'])
+    ? preg_replace('/[^a-zA-Z0-9]/', '', $_GET['registration'])
+    : null;
+
 $token = $_GET['tok'] ?? null;
 $regenerate = isset($_GET['regenerate']) && $_GET['regenerate'] === 'true';
 
@@ -108,7 +114,8 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
         'filterByFormula' => sprintf("{Booking}='%s'", $bookingId),
         'fields' => ['Bookable Item ID']
     ]);
-    $selectedItems = array_map(fn($record) => $record['id'], $existingBookedItems);
+    // $selectedItems = array_map(fn($record) => $record['id'], $existingBookedItems);
+    $selectedItems = array_map(fn($record) => $record['fields']['Bookable Item ID'] ?? '', $existingBookedItems);
     $items = $itemRepo->listForMeeting($meetingId, $reg['fields']['Role']);
 }
 
