@@ -1,6 +1,12 @@
 body {
     --pico-font-family: 'Barlow', sans-serif;
     --pico-color: #1e1735;
+    --pico-h1-color: #1e1735;
+    --pico-h2-color: #1e1735;
+    --pico-h3-color: #1e1735;
+    --pico-h4-color: #1e1735;
+    --pico-h5-color: #1e1735;
+    --pico-h6-color: #1e1735;
     font-family: 'Barlow', sans-serif;
     font-weight: 200;
 }
@@ -10,6 +16,12 @@ body {
     }
     body{
         --pico-color: #FFFFFF;
+        --pico-h1-color: #FFFFFF;
+        --pico-h2-color: #FFFFFF;
+        --pico-h3-color: #FFFFFF;
+        --pico-h4-color: #FFFFFF;
+        --pico-h5-color: #FFFFFF;
+        --pico-h6-color: #FFFFFF;
     }
 }
 #logo {
