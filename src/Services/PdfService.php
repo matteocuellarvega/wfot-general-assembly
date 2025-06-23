@@ -10,8 +10,8 @@ class PdfService
     {
         $options = new Options();
         $options->set('isRemoteEnabled', true);
-        // Set the base path to the webroot for resolving relative paths
-        $options->set('chroot', '/var/www/general-assembly/public');
+        $options->set('chroot', dirname(__DIR__, 2));
+        $options->set('defaultMediaType', 'print'); 
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html, 'UTF-8');

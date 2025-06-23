@@ -119,6 +119,9 @@ body {
 }
 
 @media print{
+    body{
+        color: #000000 !important;
+    }
     @page {
         margin: 0;
     }
