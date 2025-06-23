@@ -17,16 +17,18 @@ class QrCodeService
      */
     public static function generateDataUri(string $data): string
     {
-        $result = (new Builder())
-            ->writer(new PngWriter())
-            ->writerOptions([])
-            ->data($data)
-            ->encoding(new Encoding('UTF-8'))
-            ->errorCorrectionLevel(ErrorCorrectionLevel::High)
-            ->size(300)
-            ->margin(10)
-            ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
-            ->build();
+        $builder = new Builder(
+            writer: new PngWriter(),
+            writerOptions: [],
+            data: $data,
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: ErrorCorrectionLevel::High,
+            size: 300,
+            margin: 10,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin
+        );
+
+        $result = $builder->build();
 
         return $result->getDataUri();
     }
