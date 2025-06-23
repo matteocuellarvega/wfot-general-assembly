@@ -25,5 +25,16 @@ class TokenService
     {
         return hash_hmac('sha256', $registrationId, env('TOKEN_SALT'));
     }
+
+    /**
+     * Generates the expected token for a given registration ID.
+     *
+     * @param string $registrationId The registration ID to generate the token for.
+     * @return string The expected token.
+     */
+    public static function forRegistration(string $registrationId): string
+    {
+        return hash_hmac('sha256', $registrationId, env('TOKEN_SALT'));
+    }
 }
 ?>
