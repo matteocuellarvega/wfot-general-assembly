@@ -21,6 +21,7 @@ if(!$bookingId && !$registrationId){
 }
 
 if($registrationId){
+    $meetingId = $reg['fields']['Meeting ID'] ?? null;
     $validToken = env('DEBUG') || TokenService::check($registrationId, $token ?? '');
     if (!$validToken) {
         http_response_code(403); echo 'Invalid token'; exit;
@@ -71,7 +72,7 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
         'fields' => ['Bookable Item ID']
     ]);
     $selectedItems = array_map(fn($record) => $record['id'], $existingBookedItems);
-    $items = $itemRepo->listForMeeting($reg['fields']['Meeting ID'], $reg['fields']['Role']);
+    $items = $itemRepo->listForMeeting($meetingId, $reg['fields']['Role']);
 }
 
 include dirname(__DIR__,2).'/templates/booking-header.php';
