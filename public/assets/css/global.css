@@ -25,10 +25,11 @@ body {
     }
 }
 #logo {
-    width: 100px;
-    height: auto;
-    margin: 0 auto;
+    height: 96px;
+    width: auto;
     display: block;
+    margin-block-start: 2rem;
+    margin-block-end: 2rem;
 }
 /* barlow-200 - latin */
 @font-face {

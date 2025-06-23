@@ -26,11 +26,13 @@
           <td>$<?=number_format($bi['fields']['Item Total'] ?? 0, 2)?></td>
         </tr>
       <?php endforeach; ?>
+    </tbody>
+    <tfoot>
       <tr>
         <td><strong>Total</strong></td>
         <td><strong>$<?=number_format($booking['fields']['Total'] ?? 0, 2)?></strong></td>
       </tr>
-    </tbody>
+    </tfoot>
   </table>
 </article>
 

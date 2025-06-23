@@ -21,7 +21,7 @@ if(!$bookingId && !$registrationId){
 }
 
 if($registrationId){
-    $validToken = env('DEBUG') || TokenService::check($registrationId, $token ?? '');
+    $validToken = env('DEBUG') === true || TokenService::check($registrationId, $token ?? '');
     if (!$validToken) {
         http_response_code(403); echo 'Invalid token'; exit;
     }
