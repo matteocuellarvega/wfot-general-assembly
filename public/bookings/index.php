@@ -21,7 +21,8 @@ if(!$bookingId && !$registrationId){
 }
 
 if($registrationId){
-    if(!env('DEBUG') && !TokenService::check($registrationId, $token ?? '')){
+    $validToken = env('DEBUG') || TokenService::check($registrationId, $token ?? '');
+    if (!$validToken) {
         http_response_code(403); echo 'Invalid token'; exit;
     }
     $reg = $regRepo->find($registrationId);
@@ -37,6 +38,7 @@ if($registrationId){
         $bookingId = $booking['id'] ?? null;
     }
 } else {
+    $validToken = false; // No token validation for direct booking access
     $booking = $bookingRepo->find($bookingId);
     if(!$booking){ http_response_code(404); echo 'Booking not found'; exit; }
     $registrationId = $booking['fields']['Registration'][0] ?? null;
@@ -58,7 +60,7 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
     $items = $itemRecords; // Assign the fetched records to $items for the template
     include dirname(__DIR__,2).'/templates/booking-header.php';
     include dirname(__DIR__,2).'/templates/booking_complete.php';
-    include dirname(__DIR__,2).'/templates/booking-footer.php';
+    // Pass $validToken to the template
     exit;
 } else {
     // For Pending bookings, fetch already selected items for pre-population.
