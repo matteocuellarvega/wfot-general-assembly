@@ -10,6 +10,9 @@ body {
     font-family: 'Barlow', sans-serif;
     font-weight: 200;
 }
+.only-print {
+    display: none;
+}
 @media only screen and (prefers-color-scheme: dark){
     #logo {
         filter: invert(1);
@@ -122,5 +125,11 @@ body {
     .container {
         max-width: 100%;
         padding: 0 2rem;
+    }
+    .no-print {
+        display: none;
+    }
+    .only-print {
+        display: block !important;
     }
 }
