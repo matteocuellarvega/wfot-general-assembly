@@ -21,6 +21,7 @@ $registrationId = isset($_GET['registration'])
 
 $token = $_GET['tok'] ?? null;
 $regenerate = isset($_GET['regenerate']) && $_GET['regenerate'] === 'true';
+$editBooking = isset($_GET['edit']) && $_GET['edit'] === 'true';
 
 $meetingId = null; // Initialize meetingId to null
 
@@ -58,26 +59,35 @@ if($registrationId){
     $reg = $regRepo->find($registrationId);
 }
 
-if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
-    $bookedItemIds = $booking['fields']['Booked Items'] ?? []; // Use a different name to avoid confusion
-    $itemRecords=[];
-    $airtableService = new AirtableService(); // Instantiate service once
-    $bookedItemsTable = 'tbluEJs6UHGhLbvJX'; // Define table ID
-    foreach($bookedItemIds as $bi){ // Loop through IDs
-        // Correct the find call
+if (
+    !$editBooking &&
+    (
+        $regenerate ||
+        ($booking['fields']['Status'] === 'Complete') ||
+        (
+            ($booking['fields']['Status'] ?? 'Pending') === 'Pending' &&
+            ($booking['fields']['Payment Method'] ?? '') === 'Cash'
+        )
+    )
+) {
+    $bookedItemIds = $booking['fields']['Booked Items'] ?? [];
+    $itemRecords = [];
+    $airtableService = new AirtableService();
+    $bookedItemsTable = 'tbluEJs6UHGhLbvJX';
+    foreach ($bookedItemIds as $bi) {
         $itemRecord = $airtableService->find($bookedItemsTable, $bi);
-        if ($itemRecord) { // Check if the item was found
+        if ($itemRecord) {
             $itemRecords[] = $itemRecord;
         }
     }
-    $items = $itemRecords; // Assign the fetched records to $items for the template
+    $items = $itemRecords;
 
     $qrCodeDataUri = QrCodeService::generateDataUri($booking['id']);
 
     ob_start();
-    include dirname(__DIR__,2).'/templates/booking-header.php';
-    include dirname(__DIR__,2).'/templates/booking_complete.php';
-    include dirname(__DIR__,2).'/templates/booking-footer.php';
+    include dirname(__DIR__, 2) . '/templates/booking-header.php';
+    include dirname(__DIR__, 2) . '/templates/booking_complete.php';
+    include dirname(__DIR__, 2) . '/templates/booking-footer.php';
     $html = ob_get_clean();
 
     $confirmationDir = dirname(__DIR__, 2) . '/storage/confirmations';
@@ -89,14 +99,10 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
     if (!file_exists($confirmationPath) || $regenerate) {
         PdfService::generateConfirmation($html, $confirmationPath);
 
-        // Generate a token for the public confirmation URL
         $confirmationToken = TokenService::generate($booking['id']);
-        // Construct the public URL
         $confirmationUrl = rtrim(env('APP_URL'), '/') . '/bookings/confirmation.php?booking=' . $booking['id'] . '&tok=' . $confirmationToken;
-        // Update the booking record in Airtable with the URL
         $bookingRepo->update($booking['id'], ['Confirmation' => $confirmationUrl]);
 
-        // Send email with PDF attachment
         $userEmail = $reg['fields']['Email'] ?? null;
         $userName = ($reg['fields']['First Name'] ?? '') . ' ' . ($reg['fields']['Last Name'] ?? '');
         if ($userEmail) {
@@ -116,9 +122,11 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
     ]);
     // $selectedItems = array_map(fn($record) => $record['id'], $existingBookedItems);
     $selectedItems = array_map(fn($record) => $record['fields']['Bookable Item ID'] ?? '', $existingBookedItems);
+    $selectedPayMethod = $booking['fields']['Payment Method'] ?? '';
     $items = $itemRepo->listForMeeting($meetingId, $reg['fields']['Role']);
-}
 
-include dirname(__DIR__,2).'/templates/booking-header.php';
-include dirname(__DIR__,2).'/templates/booking_form.php';
-include dirname(__DIR__,2).'/templates/booking-footer.php';
+    include dirname(__DIR__,2).'/templates/booking-header.php';
+    include dirname(__DIR__,2).'/templates/booking_form.php';
+    include dirname(__DIR__,2).'/templates/booking-footer.php';
+    exit;
+}
