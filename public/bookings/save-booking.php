@@ -89,12 +89,34 @@ if (!empty($itemIds)) {
 $bookingRepo->update($bookingId, $updateData);
 
 
-// --- Modification: Re-fetch booking AFTER updates to get accurate total ---
-// Add a small delay to ensure Airtable rollups have calculated the total
-sleep(2); // Wait 2 seconds for Airtable calculations (adjust as needed)
-$booking = $bookingRepo->find($bookingId);
-$total = $booking['fields']['Total'] ?? 0.0;
-// --- End Modification ---
+$total = 0.0;
+// Fetch the newly created booked items to calculate the total
+if (!empty($newBookedItemIds)) {
+    $bookedItems = [];
+    foreach ($newBookedItemIds as $itemId) {
+        $bookedItem = $db->find($bookedItemsTable, $itemId);
+        if ($bookedItem && isset($bookedItem['fields']['Item Total'])) {
+            $total += floatval($bookedItem['fields']['Item Total']);
+        }
+        $bookedItems[] = $bookedItem;
+    }
+}
+
+// NEW CODE: Apply discount from booking if available
+$updatedBooking = $bookingRepo->find($bookingId);
+$discount = isset($updatedBooking['fields']['Discounts']) ? floatval($updatedBooking['fields']['Discounts']) : 0.0;
+
+// Subtract discount but ensure total doesn't go negative
+$totalAfterDiscount = max(0, $total - $discount);
+
+// Store both gross and net totals in the booking for clarity
+$bookingRepo->update($bookingId, [
+    'Subtotal' => $total,
+    'Total' => $totalAfterDiscount
+]);
+
+// Use the discounted total for payment processing
+$total = $totalAfterDiscount;
 
 
 // Handle based on the *actual* total
@@ -110,7 +132,7 @@ if ($total == 0) {
 } elseif ($payMethod === 'Cash') {
     $bookingRepo->update($bookingId, [
         'Payment Status' => 'Unpaid', // Use 'Unpaid' for Cash
-        'Status' => 'Complete' // Mark as complete, payment expected on arrival
+        'Status' => 'Pending'
     ]);
     // Send confirmation (not receipt yet) for cash booking? Optional.
     echo json_encode(['payment' => 'Cash', 'booking_id' => $bookingId]); exit;

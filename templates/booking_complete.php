@@ -53,6 +53,10 @@
     </tbody>
     <tfoot>
       <tr>
+        <td>Sub Total</td>
+        <td>$<?=number_format($booking['fields']['Subtotal'] ?? 0, 2)?></td>
+      </tr>
+      <tr>
         <td>Total</td>
         <td>$<?=number_format($booking['fields']['Total'] ?? 0, 2)?></td>
       </tr>
