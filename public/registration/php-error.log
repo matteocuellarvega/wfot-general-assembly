@@ -1,0 +1,21 @@
+[03-Nov-2023 12:25:32 UTC] PHP Notice:  Undefined index: organisation in /var/www/html/registration/visa_letter_cm2024.php on line 61
+[23-Apr-2025 11:32:56 UTC] PHP Fatal error:  Uncaught Dompdf\Exception: file_get_contents(): Passing null to parameter #2 ($use_include_path) of type bool is deprecated 8192 in /var/www/html/registration/DOMpdf/src/Helpers.php:507
+Stack trace:
+#0 [internal function]: Dompdf\Helpers::record_warnings()
+#1 /var/www/html/registration/DOMpdf/src/Helpers.php(839): file_get_contents()
+#2 /var/www/html/registration/DOMpdf/src/Css/Stylesheet.php(367): Dompdf\Helpers::getFileContent()
+#3 /var/www/html/registration/DOMpdf/src/Dompdf.php(572): Dompdf\Css\Stylesheet->load_css_file()
+#4 /var/www/html/registration/DOMpdf/src/Dompdf.php(724): Dompdf\Dompdf->processHtml()
+#5 /var/www/html/registration/visa_letter_cm2024.php(164): Dompdf\Dompdf->render()
+#6 {main}
+  thrown in /var/www/html/registration/DOMpdf/src/Helpers.php on line 507
+[23-Apr-2025 13:35:02 UTC] PHP Fatal error:  Uncaught Dompdf\Exception: file_get_contents(): Passing null to parameter #2 ($use_include_path) of type bool is deprecated 8192 in /var/www/html/registration/DOMpdf/src/Helpers.php:507
+Stack trace:
+#0 [internal function]: Dompdf\Helpers::record_warnings()
+#1 /var/www/html/registration/DOMpdf/src/Helpers.php(839): file_get_contents()
+#2 /var/www/html/registration/DOMpdf/src/Css/Stylesheet.php(367): Dompdf\Helpers::getFileContent()
+#3 /var/www/html/registration/DOMpdf/src/Dompdf.php(572): Dompdf\Css\Stylesheet->load_css_file()
+#4 /var/www/html/registration/DOMpdf/src/Dompdf.php(724): Dompdf\Dompdf->processHtml()
+#5 /var/www/html/registration/visa_letter_cm2024.php(164): Dompdf\Dompdf->render()
+#6 {main}
+  thrown in /var/www/html/registration/DOMpdf/src/Helpers.php on line 507
