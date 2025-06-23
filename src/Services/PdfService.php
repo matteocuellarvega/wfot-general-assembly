@@ -10,8 +10,8 @@ class PdfService
     {
         $options = new Options();
         $options->set('isRemoteEnabled', true);
-        // Set the chroot to the project root directory to allow access to assets
-        $options->set('chroot', dirname(__DIR__, 2));
+        // Set the base path to the webroot for resolving relative paths
+        $options->set('chroot', '/var/www/general-assembly/public');
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html, 'UTF-8');
