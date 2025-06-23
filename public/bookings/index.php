@@ -64,17 +64,20 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
 
     $qrCodeDataUri = QrCodeService::generateDataUri($booking['id']);
 
+    ob_start();
+    include dirname(__DIR__,2).'/templates/booking-header.php';
+    include dirname(__DIR__,2).'/templates/booking_complete.php';
+    include dirname(__DIR__,2).'/templates/booking-footer.php';
+    $html = ob_get_clean();
+
     $receiptDir = dirname(__DIR__, 2) . '/storage/receipts';
     if (!is_dir($receiptDir)) {
         mkdir($receiptDir, 0777, true);
     }
     $receiptPath = $receiptDir . '/' . $booking['id'] . '.pdf';
-    PdfService::generateReceipt($booking, $items, $reg, $qrCodeDataUri, $receiptPath);
+    PdfService::generateReceipt($html, $receiptPath);
 
-    include dirname(__DIR__,2).'/templates/booking-header.php';
-    include dirname(__DIR__,2).'/templates/booking_complete.php';
-    include dirname(__DIR__,2).'/templates/booking-footer.php';
-    // Pass $validToken to the template
+    echo $html;
     exit;
 } else {
     // For Pending bookings, fetch already selected items for pre-population.

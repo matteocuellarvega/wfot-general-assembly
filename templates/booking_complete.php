@@ -43,11 +43,12 @@
   </table>
 </article>
 
-<p>A receipt has been emailed to 
-<?php if ($validToken ?? false): ?>
-  <?=htmlspecialchars($booking['fields']['Email'][0] ?? 'N/A')?>
-<?php else: ?>
-  <?=safe_email($booking['fields']['Email'][0] ?? '')?>
-<?php endif; ?>
-</p>
-<p>Thank you for your booking!</p>
+<div class="receipt-footer no-print">
+  <p>A receipt has been emailed to <?=safe_email($booking['fields']['Email'][0] ?? '')?>. If you do not receive it, please check your spam folder or contact us for assistance.</p>
+  <p>Thank you for your booking!</p>
+</div>
+
+<div class="receipt-footer only-print">
+  <p>Please keep a copy of your receipt.</p>
+  <p>Thank you for your booking!</p>
+</div>
