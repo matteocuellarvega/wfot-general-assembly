@@ -8,12 +8,23 @@
     <div class="booking-details">
       <h4>Booking details</h4>
       <p><strong>Booking ID:</strong> <?=htmlspecialchars($booking['id'])?></p>
-      <p><strong>Registration:</strong> <?=htmlspecialchars($booking['fields']['First Name'][0] ?? 'N/A')?> <?=htmlspecialchars($booking['fields']['Last Name'][0] ?? 'N/A')?> (Registration ID: <?=htmlspecialchars($booking['fields']['Registration'][0] ?? 'N/A')?>)</p>
+      <p><strong>Registration:</strong> <?=htmlspecialchars($booking['fields']['First Name'][0] ?? 'N/A')?> <?=htmlspecialchars($booking['fields']['Last Name'][0] ?? 'N/A')?> (Reg #: <?=htmlspecialchars($booking['fields']['Registration'][0] ?? 'N/A')?>)</p>
       <p><strong>Payment method:</strong> <?=htmlspecialchars($booking['fields']['Payment Method'] ?? 'N/A')?></p>
       <p><strong>Payment status:</strong> <?=htmlspecialchars($booking['fields']['Payment Status'] ?? 'N/A')?></p>
+
+      <?php if (isset($booking['fields']['Payment Status']) && $booking['fields']['Payment Status'] === 'Paid'): ?>
+        <?php if (isset($booking['fields']['Payment Reference'])): ?>
+          <p><strong>Payment Reference:</strong> <?= htmlspecialchars($booking['fields']['Payment Reference']) ?></p>
+        <?php endif; ?>
+
+        <?php if (isset($booking['fields']['Payment Date'])): ?>
+          <p><strong>Payment Date:</strong> <?= htmlspecialchars($booking['fields']['Payment Date']) ?></p>
+        <?php endif; ?>
+      <?php endif; ?>
+
     </div>
     <div class="booking-qr-code">
-      <img src="<?= $qrCodeDataUri ?? '' ?>" alt="Booking QR Code" style="max-width: 180px;">
+      <img src="<?= $qrCodeDataUri ?? '' ?>" alt="Booking ID: <?=htmlspecialchars($booking['id'])?>" style="max-width: 160px;">
     </div>
   </div>
 </article>
