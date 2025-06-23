@@ -74,7 +74,7 @@ foreach ($itemIds as $iid) {
 // Linking directly might be redundant if Airtable rollup handles it, but can be explicit:
 $updateData = [
     'Dietary Requirements' => $diet,
-    // 'Booked Items' => $newBookedItemIds // Only if direct linking is desired/needed
+    'Booked Items' => $newBookedItemIds // Only if direct linking is desired/needed
 ];
 
 // Only set Payment Method if items were selected (total might be > 0)
