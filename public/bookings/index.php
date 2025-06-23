@@ -14,6 +14,7 @@ use WFOT\Services\EmailService;
 $bookingId = $_GET['booking'] ?? null;
 $registrationId = $_GET['registration'] ?? null;
 $token = $_GET['tok'] ?? null;
+$regenerate = isset($_GET['regenerate']) && $_GET['regenerate'] === 'true';
 
 $meetingId = null; // Initialize meetingId to null
 
@@ -79,7 +80,7 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
     }
     $confirmationPath = $confirmationDir . '/' . $booking['id'] . '.pdf';
 
-    if (!file_exists($confirmationPath)) {
+    if (!file_exists($confirmationPath) || $regenerate) {
         PdfService::generateConfirmation($html, $confirmationPath);
 
         // Generate a token for the public confirmation URL
