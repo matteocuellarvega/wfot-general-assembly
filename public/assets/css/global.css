@@ -1,6 +1,22 @@
 body {
+    --pico-font-family: 'Barlow', sans-serif;
+    --pico-color: #1e1735;
     font-family: 'Barlow', sans-serif;
     font-weight: 200;
+}
+@media only screen and (prefers-color-scheme: dark){
+    #logo {
+        filter: invert(1);
+    }
+    body{
+        --pico-color: #FFFFFF;
+    }
+}
+#logo {
+    width: 100px;
+    height: auto;
+    margin: 0 auto;
+    display: block;
 }
 /* barlow-200 - latin */
 @font-face {
