@@ -9,6 +9,7 @@ use WFOT\Services\TokenService;
 use WFOT\Services\AirtableService; // Make sure this is included
 use WFOT\Services\QrCodeService;
 use WFOT\Services\PdfService;
+use WFOT\Services\EmailService;
 
 $bookingId = $_GET['booking'] ?? null;
 $registrationId = $_GET['registration'] ?? null;
@@ -75,7 +76,24 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
         mkdir($receiptDir, 0777, true);
     }
     $receiptPath = $receiptDir . '/' . $booking['id'] . '.pdf';
-    PdfService::generateReceipt($html, $receiptPath);
+
+    if (!file_exists($receiptPath)) {
+        PdfService::generateReceipt($html, $receiptPath);
+
+        // Generate a token for the public receipt URL
+        $receiptToken = TokenService::generate($booking['id']);
+        // Construct the public URL
+        $receiptUrl = rtrim(env('APP_URL'), '/') . '/bookings/receipt.php?booking=' . $booking['id'] . '&tok=' . $receiptToken;
+        // Update the booking record in Airtable with the URL
+        $bookingRepo->update($booking['id'], ['Confirmation' => $receiptUrl]);
+
+        // Send email with PDF attachment
+        $userEmail = $reg['fields']['Email'] ?? null;
+        $userName = ($reg['fields']['First Name'] ?? '') . ' ' . ($reg['fields']['Last Name'] ?? '');
+        if ($userEmail) {
+            EmailService::sendReceipt($userEmail, $userName, $receiptPath);
+        }
+    }
 
     echo $html;
     exit;
