@@ -5,9 +5,16 @@
 
 <article>
   <h3>Booking details</h3>
-  <p><strong>Booking ID:</strong> <?=htmlspecialchars($booking['id'])?></p>
-  <p><strong>Payment method:</strong> <?=htmlspecialchars($booking['fields']['Payment Method'] ?? 'N/A')?></p>
-  <p><strong>Payment status:</strong> <?=htmlspecialchars($booking['fields']['Payment Status'] ?? 'N/A')?></p>
+  <div class="booking-info" style="display: flex;">
+    <div class="booking-details">
+      <p><strong>Booking ID:</strong> <?=htmlspecialchars($booking['id'])?></p>
+      <p><strong>Payment method:</strong> <?=htmlspecialchars($booking['fields']['Payment Method'] ?? 'N/A')?></p>
+      <p><strong>Payment status:</strong> <?=htmlspecialchars($booking['fields']['Payment Status'] ?? 'N/A')?></p>
+    </div>
+    <div class="booking-qr-code">
+      <img src="<?= $qrCodeDataUri ?? '' ?>" alt="Booking QR Code" style="max-width: 200px;">
+    </div>
+  </div>
 </article>
 
 <article>
