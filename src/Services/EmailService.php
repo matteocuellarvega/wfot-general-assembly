@@ -11,7 +11,7 @@ class EmailService
         }
     }
 
-    public static function sendConfirmation(string $to, string $name, string $pdfPath): bool
+    public static function sendConfirmation(string $to, string $name, string $pdfPath, string $meetingId): bool
     {
         self::logDebug("sendConfirmation called for to: $to, name: $name, pdfPath: $pdfPath");
         $mail = new PHPMailer(true);
@@ -31,11 +31,11 @@ class EmailService
         
         // Create a more detailed email body
         $mail->isHTML(true);
-        $mail->Body = self::generateConfirmationEmailBody($name);
-        $mail->AltBody = strip_tags(str_replace('<br>', "\n", self::generateConfirmationEmailBody($name)));
+        $mail->Body = self::generateConfirmationEmailBody($name, $meetingId);
+        $mail->AltBody = strip_tags(str_replace('<br>', "\n", self::generateConfirmationEmailBody($name, $meetingId)));
         
         if (file_exists($pdfPath)) {
-            $mail->addAttachment($pdfPath, 'WFOT_booking_confirmation.pdf');
+            $mail->addAttachment($pdfPath, 'WFOT_' . $meetingId . '_Booking_Confirmation.pdf');
         } else {
             self::logDebug("Warning: PDF file not found at path: $pdfPath");
         }
@@ -55,7 +55,7 @@ class EmailService
     private static function generateConfirmationEmailBody(string $name): string
     {
         return '
-        <img src="' . rtrim(env('APP_URL'), '/') . '/assets/img/logo.png" alt="WFOT Logo" style="max-width: 200px;">
+        <img src="' . rtrim(env('APP_URL'), '/') . '/assets/img/logo-'. strtolower($meetingId) .'.png" alt="WFOT Logo" style="max-width: 200px;">
         <h2>Booking Confirmation</h2>
         <p>Dear ' . htmlspecialchars($name) . ',</p>
         <p>Thank you for your booking for the WFOT General Assembly. Please find your booking confirmation attached to this email.</p>

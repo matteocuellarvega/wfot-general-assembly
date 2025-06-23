@@ -91,7 +91,7 @@ if(($booking['fields']['Status'] ?? 'Pending') === 'Complete'){
         $userEmail = $reg['fields']['Email'] ?? null;
         $userName = ($reg['fields']['First Name'] ?? '') . ' ' . ($reg['fields']['Last Name'] ?? '');
         if ($userEmail) {
-            EmailService::sendConfirmation($userEmail, $userName, $confirmationPath);
+            EmailService::sendConfirmation($userEmail, $userName, $confirmationPath, $meetingId);
         }
     }
 

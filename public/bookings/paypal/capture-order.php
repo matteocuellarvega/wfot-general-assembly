@@ -79,9 +79,10 @@ try {
     // email - Use email from booking record
     $recipientEmail = $booking['fields']['Email'][0] ?? $payerEmail; // Fallback to payer email if booking email missing
     $recipientName = $booking['fields']['First Name'] ?? trim($payerName); // Fallback to payer name
+    $meetingId = $booking['fields']['Meeting ID'] ?? null; // Get meeting ID if exists
 
     if ($recipientEmail) {
-        EmailService::sendConfirmation($recipientEmail, $recipientName, $file);
+        EmailService::sendConfirmation($recipientEmail, $recipientName, $file, $meetingId);
     } else {
         error_log("No recipient email found for booking $bookingId. Confirmation not sent.");
     }
