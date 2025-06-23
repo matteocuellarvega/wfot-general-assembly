@@ -21,7 +21,6 @@ if(!$bookingId && !$registrationId){
 }
 
 if($registrationId){
-    $meetingId = $reg['fields']['Meeting ID'] ?? null;
     $validToken = env('DEBUG') || TokenService::check($registrationId, $token ?? '');
     if (!$validToken) {
         http_response_code(403); echo 'Invalid token'; exit;
@@ -31,6 +30,7 @@ if($registrationId){
     if(!$reg || isset($reg['fields']['Payment Status'])){
         http_response_code(404); echo 'Registration not found or invalid ID provided.'; exit;
     }
+    $meetingId = $reg['fields']['Meeting ID'] ?? null;
     $booking = $bookingRepo->findByRegistration($registrationId);
     if(!$booking){
         $booking = $bookingRepo->create($registrationId);

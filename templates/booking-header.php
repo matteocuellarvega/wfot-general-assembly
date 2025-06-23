@@ -5,4 +5,4 @@
 <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2/css/pico.min.css">
 <title>WFOT Booking</title>
 </head><body class="container">
-<img src="https://<?php echo $_SERVER['HTTP_HOST']; ?>/assets/img/logo-<?php echo strtolower($meeting_id); ?>.svg" alt="WFOT Logo" class="logo">
+<img src="https://<?php echo $_SERVER['HTTP_HOST']; ?>/assets/img/logo-<?php echo strtolower($meetingId); ?>.svg" alt="WFOT Logo" class="logo">
