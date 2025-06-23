@@ -8,15 +8,16 @@ $(function(){
   let currentTotal = 0;
   let paypalButtonsInstance = null; // To keep track of rendered buttons
 
-  // Function to get URL without edit parameter
+  // Enhanced function to get URL without edit parameter but preserve all other parameters
   function getUrlWithoutEditParam() {
-    const url = new URL(window.location.href);
-    url.searchParams.delete('edit');
-    return url.toString();
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.delete('edit');
+    return currentUrl.toString();
   }
 
   // Check if we're in edit mode - using the variable passed from PHP
-  const isEditMode = window.bookingFormData ? window.bookingFormData.isEditMode : false;
+  const isEditMode = window.bookingFormData ? window.bookingFormData.isEditMode : 
+                    (new URLSearchParams(window.location.search).get('edit') === 'true');
 
   // Set previously selected payment method if it exists - using the variable passed from PHP
   if (window.bookingFormData && window.bookingFormData.selectedPayMethod) {
@@ -143,9 +144,12 @@ $(function(){
       if(json.payment==='Cash' || json.payment==='None'){
          // Clear the form changed flag before redirecting
          clearFormChangedFlag();
-         // If in edit mode, redirect to page without edit parameter
+         
+         // Always use the URL without edit parameter for redirections
          if (isEditMode) {
-           window.location.href = getUrlWithoutEditParam();
+           const cleanUrl = getUrlWithoutEditParam();
+           console.log("Redirecting to:", cleanUrl); // Debug log
+           window.location.href = cleanUrl;
          } else {
            window.location.reload();
          }
@@ -165,11 +169,14 @@ $(function(){
                 .then(r=>r.json())
                 .then(res=>{
                    if(res.success){
-                      // Clear the form changed flag before redirecting
+                      // Clear the form changed flag
                       clearFormChangedFlag();
-                      // If in edit mode, redirect to page without edit parameter
+                      
+                      // Always use the URL without edit parameter for redirections
                       if (isEditMode) {
-                        window.location.href = getUrlWithoutEditParam();
+                        const cleanUrl = getUrlWithoutEditParam();
+                        console.log("Redirecting to:", cleanUrl); // Debug log
+                        window.location.href = cleanUrl;
                       } else {
                         window.location.reload();
                       }
