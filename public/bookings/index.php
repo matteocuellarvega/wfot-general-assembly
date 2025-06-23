@@ -15,6 +15,8 @@ $bookingId = $_GET['booking'] ?? null;
 $registrationId = $_GET['registration'] ?? null;
 $token = $_GET['tok'] ?? null;
 
+$meetingId = null; // Initialize meetingId to null
+
 $bookingRepo = new BookingRepository();
 $regRepo = new RegistrationRepository();
 $itemRepo = new ItemRepository();
