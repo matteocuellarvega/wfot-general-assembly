@@ -18,7 +18,12 @@
         <?php endif; ?>
 
         <?php if (isset($booking['fields']['Payment Date'])): ?>
-          <p><strong>Payment Date:</strong> <?= htmlspecialchars($booking['fields']['Payment Date']) ?></p>
+          <p><strong>Payment Date:</strong>
+            <?php 
+              $date = new DateTime($booking['fields']['Payment Date']);
+              echo $date->format('d M Y');
+            ?>
+          </p>
         <?php endif; ?>
       <?php endif; ?>
 
