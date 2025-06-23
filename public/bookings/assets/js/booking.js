@@ -8,6 +8,23 @@ $(function(){
   let currentTotal = 0;
   let paypalButtonsInstance = null; // To keep track of rendered buttons
 
+  // Function to get URL without edit parameter
+  function getUrlWithoutEditParam() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('edit');
+    return url.toString();
+  }
+
+  // Check if we're in edit mode - using the variable passed from PHP
+  const isEditMode = window.bookingFormData ? window.bookingFormData.isEditMode : false;
+
+  // Set previously selected payment method if it exists - using the variable passed from PHP
+  if (window.bookingFormData && window.bookingFormData.selectedPayMethod) {
+    $payMethodSelect.val(window.bookingFormData.selectedPayMethod);
+  }
+
+  // The dietary requirements are now directly set in the textarea in the HTML
+
   $('input[data-cost]').on('change click', calc);
 
   function calc(){
@@ -36,6 +53,50 @@ $(function(){
   // Initial calculation on page load
   calc();
 
+  // Add feedback for selection changes
+  $('input[data-cost]').on('change', function() {
+    const itemName = $(this).closest('tr').find('td:first').text();
+    if (this.checked) {
+      $('<div class="notification success">')
+        .text(`Added ${itemName}`)
+        .appendTo('body')
+        .delay(2000)
+        .fadeOut(500, function() { $(this).remove(); });
+    } else {
+      $('<div class="notification warning">')
+        .text(`Removed ${itemName}`)
+        .appendTo('body')
+        .delay(2000)
+        .fadeOut(500, function() { $(this).remove(); });
+    }
+  });
+
+  // Debounce function to prevent rapid calculations when clicking multiple items quickly
+  function debounce(func, wait) {
+    let timeout;
+    return function() {
+      const context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+  }
+
+  // Replace direct calc binding with debounced version
+  const debouncedCalc = debounce(calc, 100);
+  $('input[data-cost]').off('change click').on('change click', debouncedCalc);
+
+  // Add payment method change handler
+  $payMethodSelect.on('change', function() {
+    const method = $(this).val();
+    if (method === 'PayPal') {
+      $('<div class="notification info">')
+        .text('You will see PayPal payment options after confirming your selections.')
+        .insertAfter($payMethodSelect)
+        .delay(5000)
+        .fadeOut(500, function() { $(this).remove(); });
+    }
+  });
+
   $('#booking-form').on('submit', function(e){
     e.preventDefault();
     $confirmButton.prop('disabled', true).text('Processing...');
@@ -49,10 +110,22 @@ $(function(){
          return;
     }
     
+    // Add form validation before submission
+    const dietaryInput = $('#diet').val().trim();
+    if (dietaryInput.length > 500) { // Add character limit check
+      $errorMessage.text('Dietary requirements text is too long (maximum 500 characters).');
+      $confirmButton.prop('disabled', false).text('Confirm booking');
+      return;
+    }
+
     let data = $(this).serialize();
     if (currentTotal === 0) {
         data = data.split('&').filter(param => !param.startsWith('paymethod=')).join('&');
     }
+
+    // Display a loading indicator
+    const $loadingIndicator = $('<div class="loading-spinner">Processing...</div>');
+    $loadingIndicator.insertAfter($confirmButton);
 
     fetch('/bookings/save-booking.php', {
       method:'POST',
@@ -68,7 +141,14 @@ $(function(){
       }
 
       if(json.payment==='Cash' || json.payment==='None'){
-         window.location.reload();
+         // Clear the form changed flag before redirecting
+         clearFormChangedFlag();
+         // If in edit mode, redirect to page without edit parameter
+         if (isEditMode) {
+           window.location.href = getUrlWithoutEditParam();
+         } else {
+           window.location.reload();
+         }
       } else if(json.payment==='Paypal'){
          $confirmButton.hide();
          $paypalContainer.show();
@@ -85,7 +165,14 @@ $(function(){
                 .then(r=>r.json())
                 .then(res=>{
                    if(res.success){
-                      window.location.reload();
+                      // Clear the form changed flag before redirecting
+                      clearFormChangedFlag();
+                      // If in edit mode, redirect to page without edit parameter
+                      if (isEditMode) {
+                        window.location.href = getUrlWithoutEditParam();
+                      } else {
+                        window.location.reload();
+                      }
                    } else {
                       $errorMessage.text(res.error || 'Payment capture failed. Please try again.');
                       actions.enable();
@@ -120,8 +207,70 @@ $(function(){
     })
     .catch(error=>{
       console.error('Fetch Error:', error);
-      $errorMessage.text('An error occurred while saving the booking. Please try again.');
+      $errorMessage.text('A network error occurred. Please check your connection and try again.');
       $confirmButton.prop('disabled', false).text('Confirm booking');
+      $loadingIndicator.remove();
     });
   });
+  
+  // Add warning before leaving page with unsaved changes
+  let formChanged = false;
+  
+  $('#booking-form input, #booking-form select, #booking-form textarea').on('change', function() {
+    formChanged = true;
+  });
+  
+  $(window).on('beforeunload', function() {
+    if (formChanged) {
+      return 'You have unsaved changes. Are you sure you want to leave?';
+    }
+  });
+  
+  // Clear the beforeunload warning when form is successfully submitted
+  function clearFormChangedFlag() {
+    formChanged = false;
+  }
+  
+  // Call this after successful submission
+  // Modify the success handlers to clear the flag before redirecting
+  
+  // Add tab key navigation improvement for form elements
+  $('#booking-form input, #booking-form select, #booking-form textarea')
+    .attr('tabindex', function(index) {
+      return index + 1;
+    });
+    
+  // Add simple CSS for notifications - will be added via JavaScript
+  const style = `
+    <style>
+      .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 15px;
+        border-radius: 4px;
+        color: white;
+        z-index: 1000;
+        animation: fadeIn 0.5s;
+      }
+      .notification.success { background-color: #4CAF50; }
+      .notification.warning { background-color: #FF9800; }
+      .notification.info { background-color: #2196F3; }
+      .notification.error { background-color: #F44336; }
+      .loading-spinner {
+        display: inline-block;
+        margin-left: 10px;
+        animation: spin 1s infinite linear;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  `;
+  $('head').append(style);
 });

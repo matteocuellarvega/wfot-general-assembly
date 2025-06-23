@@ -28,14 +28,14 @@ $selectedItems = $selectedItems ?? [];
   </table>
 
   <label for="diet">Dietary requirements</label>
-  <textarea name="diet" id="diet" rows="3"></textarea>
+  <textarea name="diet" id="diet" rows="3"><?= htmlspecialchars($booking['fields']['Dietary Requirements'] ?? '') ?></textarea>
 
   <div id="payment-section" style="display: none;">
       <label for="paymethod">Payment method</label>
       <select id="paymethod" name="paymethod">
         <option value="">Please choose</option>
-        <option value="PayPal">PayPal</option>
-        <option value="Cash">Cash (pay on arrival)</option>
+        <option value="PayPal" <?= ($selectedPayMethod === 'PayPal') ? 'selected' : '' ?>>PayPal</option>
+        <option value="Cash" <?= ($selectedPayMethod === 'Cash') ? 'selected' : '' ?>>Cash (pay on arrival)</option>
       </select>
   </div>
 
@@ -46,4 +46,11 @@ $selectedItems = $selectedItems ?? [];
 </form>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://www.paypal.com/sdk/js?client-id=<?=env('PAYPAL_CLIENT_ID')?>&currency=USD"></script>
+<script>
+  // Pass PHP variables to JavaScript
+  const bookingFormData = {
+    isEditMode: <?= json_encode(isset($_GET['edit']) && $_GET['edit'] === 'true') ?>,
+    selectedPayMethod: <?= json_encode($selectedPayMethod ?? '') ?>
+  };
+</script>
 <script src="/bookings/assets/js/booking.js"></script>
