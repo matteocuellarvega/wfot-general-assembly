@@ -204,8 +204,8 @@ body {
 
     @page {
         size: a4;
-        margin: 48px;
-        padding: 48px;
+        margin: 0;
+        padding: 0;
     }
 
     #logo {
@@ -231,6 +231,7 @@ body {
         padding-left: 0;
         padding-right: 0;
         padding-top: 2em;
+        box-shadow: none;
     }
 
     .items-table th,
