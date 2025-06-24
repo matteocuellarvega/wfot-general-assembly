@@ -11,13 +11,18 @@ $selectedItems = $selectedItems ?? [];
 
   <form method="post" id="booking-form">
     <input type="hidden" name="booking_id" value="<?=htmlspecialchars($bookingId)?>">
-    <table role="grid">
+    <table role="grid" class="bookable-items-table">
       <thead><tr><th>Item</th><th>Type</th><th class="text-right">Cost</th><th class="text-right">Add to Booking</th></tr></thead>
       <tbody>
       <?php echo json_encode($items); ?>
       <?php foreach ($items as $row): $f = $row['fields']; ?>
         <tr>
-          <td><?=htmlspecialchars($f['Name'])?></td>
+          <td>
+            <?= htmlspecialchars($f['Name']) ?>
+            <?php if (!empty($f['More Information'])): ?>
+              <a href="<?= htmlspecialchars($f['More Information']) ?>" data-tooltip="Click for details" target="_blank">Details</a>
+            <?php endif; ?>
+          </td>
           <td><?=htmlspecialchars($f['Type'])?></td>
           <td class="text-right">$<?=number_format($f['Cost'],2)?> USD</td>
           <td class="text-right">

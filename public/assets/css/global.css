@@ -115,6 +115,10 @@ body {
 .text-right {
     text-align: right;
 }
+.bookable-items-table td:first-child,
+.bookable-items-table th:first-child {
+    width: 50%;
+}
 
 @keyframes fadeIn {
     from {
