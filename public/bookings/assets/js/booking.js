@@ -143,7 +143,9 @@ $(function(){
   function handlePaymentMethodChange() {
     const method = $(this).val();
     if (method === 'PayPal') {
-      showNotification('You will see PayPal payment options after confirming your selections.', 'info');
+      $confirmButton.text('Pay with PayPal')
+    } else {
+      $confirmButton.text('Confirm booking');
     }
   }
   

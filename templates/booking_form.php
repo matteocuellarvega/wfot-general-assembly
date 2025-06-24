@@ -14,13 +14,12 @@ $selectedItems = $selectedItems ?? [];
     <table role="grid" class="bookable-items-table">
       <thead><tr><th>Item</th><th>Type</th><th class="text-right">Cost</th><th class="text-right">Add to Booking</th></tr></thead>
       <tbody>
-      <?php echo json_encode($items); ?>
       <?php foreach ($items as $row): $f = $row['fields']; ?>
         <tr>
           <td>
             <?= htmlspecialchars($f['Name']) ?>
             <?php if (!empty($f['More Information'])): ?>
-              <a href="<?= htmlspecialchars($f['More Information']) ?>" data-tooltip="Click for details" target="_blank">Details</a>
+              <a href="<?= htmlspecialchars($f['More Information']) ?>" data-tooltip="Click for details" target="_blank">[?]</a>
             <?php endif; ?>
           </td>
           <td><?=htmlspecialchars($f['Type'])?></td>
