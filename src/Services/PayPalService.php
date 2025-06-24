@@ -68,6 +68,22 @@ class PayPalService
     {
         $accessToken = $this->getAccessToken();
         
+        // Validate amount - must be numeric and positive
+        $amount = is_numeric($amount) ? (float)$amount : 0;
+        if ($amount <= 0) {
+            throw new \Exception("Invalid order amount: $amount");
+        }
+        
+        // Validate currency - must be a valid 3-letter code
+        if (!preg_match('/^[A-Z]{3}$/', $currency)) {
+            $currency = 'USD'; // Default to USD if invalid
+        }
+        
+        // Validate bookingId - make sure it's a string and doesn't contain problematic characters
+        if ($bookingId !== null) {
+            $bookingId = preg_replace('/[^a-zA-Z0-9_-]/', '', $bookingId);
+        }
+        
         $payload = [
             'intent' => 'CAPTURE',
             'purchase_units' => [
@@ -91,7 +107,14 @@ class PayPalService
         // Add custom ID if provided
         if ($bookingId) {
             $payload['purchase_units'][0]['custom_id'] = $bookingId;
+            
+            // Instead of setting custom_id directly, let's use reference_id which has stricter validation
+            // and make sure it's a simple string without prefixes
+            $payload['purchase_units'][0]['reference_id'] = 'booking_' . $bookingId;
         }
+        
+        // Debug log the payload for troubleshooting
+        error_log("PayPal createOrder payload: " . json_encode($payload));
         
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/v2/checkout/orders');
@@ -109,10 +132,45 @@ class PayPalService
         
         if ($httpCode !== 201) {
             error_log("Failed to create PayPal order: " . $response);
-            throw new \Exception("Failed to create PayPal order");
+            throw new \Exception("Failed to create PayPal order: " . $this->extractErrorMessage($response));
         }
         
         return json_decode($response, true);
+    }
+
+    /**
+     * Extract a user-friendly error message from PayPal API response
+     * 
+     * @param string $response JSON response from PayPal
+     * @return string Formatted error message
+     */
+    private function extractErrorMessage($response) 
+    {
+        $data = json_decode($response, true);
+        if (!$data) {
+            return "Unknown error";
+        }
+        
+        $message = $data['message'] ?? 'Unknown error';
+        
+        // If we have details, include the first one
+        if (isset($data['details']) && is_array($data['details']) && !empty($data['details'])) {
+            $detail = $data['details'][0];
+            $field = $detail['field'] ?? '';
+            $issue = $detail['issue'] ?? '';
+            $description = $detail['description'] ?? '';
+            
+            if ($description) {
+                $message .= ": $description";
+            } elseif ($issue) {
+                $message .= ": $issue";
+                if ($field) {
+                    $message .= " (field: $field)";
+                }
+            }
+        }
+        
+        return $message;
     }
 
     /**

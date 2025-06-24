@@ -145,7 +145,7 @@ if ($total == 0) {
     ]);
     $pp = new PayPalService();
     try {
-        $order = $pp->createOrder($total, $bookingId);
+        $order = $pp->createOrder($total, 'USD', $bookingId);
         echo json_encode(['payment' => 'Paypal', 'orderID' => $order['id'], 'booking_id' => $bookingId]);
     } catch (\Exception $e) {
         // Log the error server-side
