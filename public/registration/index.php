@@ -276,7 +276,7 @@ function getBooking(string $bookingId, AirtableService $airtableService): ?array
         'status' => $record['fields']['Status'] ?? null,
         'paymentStatus' => $record['fields']['Payment Status'] ?? null,
         'paymentMethod' => $record['fields']['Payment Method'] ?? null,
-        'confirmation' => $record['fields']['Booking Confirmation'] ?? null
+        'confirmation' => $record['fields']['Confirmation'] ?? null
     ];
 }
 
