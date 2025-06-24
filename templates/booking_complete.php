@@ -47,18 +47,18 @@
       <?php foreach ($items as $bi): ?>
         <tr>
           <td><?=htmlspecialchars($bi['fields']['Item'] ?? 'Unknown Item')?></td>
-          <td>$<?=number_format($bi['fields']['Item Total'] ?? 0, 2)?></td>
+          <td class="text-right">$<?=number_format($bi['fields']['Item Total'] ?? 0, 2)?></td>
         </tr>
       <?php endforeach; ?>
     </tbody>
     <tfoot>
       <tr>
-        <td>Sub Total</td>
-        <td>$<?=number_format($booking['fields']['Subtotal'] ?? 0, 2)?></td>
+        <td class="text-right">Sub Total</td>
+        <td class="text-right">$<?=number_format($booking['fields']['Subtotal'] ?? 0, 2)?></td>
       </tr>
       <tr>
-        <td>Total</td>
-        <td>$<?=number_format($booking['fields']['Total'] ?? 0, 2)?></td>
+        <td class="text-right">Total</td>
+        <td class="text-right">$<?=number_format($booking['fields']['Total'] ?? 0, 2)?></td>
       </tr>
     </tfoot>
   </table>

@@ -1,4 +1,6 @@
-body {
+:host(:not([data-theme=dark])),
+:root:not([data-theme=dark]),
+[data-theme=light] {
     --pico-font-family: 'Barlow', sans-serif;
     --pico-color: #1e1735;
     --pico-h1-color: #1e1735;
@@ -7,6 +9,17 @@ body {
     --pico-h4-color: #1e1735;
     --pico-h5-color: #1e1735;
     --pico-h6-color: #1e1735;
+    --pico-primary: #45bea3;
+    --pico-primary-focus: rgba(69, 190, 163, .5);
+    --pico-primary-background: #45BEA3;
+    --pico-primary-border: #45BEA3;
+    --pico-primary-hover: #379983;
+    --pico-primary-hover-background: #379983;
+    --pico-primary-hover-border: #379983;
+    --pico-primary-hover-underline: #379983;
+}
+
+body {
     font-family: 'Barlow', sans-serif;
     font-weight: 200;
 }
@@ -17,10 +30,12 @@ body {
 
 @media only screen and (prefers-color-scheme: dark) {
     #logo {
-        filter: invert(1);
+        filter: invert(1) brightness(1000%) contrast(100%);
     }
 
-    body {
+    :host(:not([data-theme=light])),
+    :root:not([data-theme=light]),
+    [data-theme=dark] {
         --pico-color: #FFFFFF;
         --pico-h1-color: #FFFFFF;
         --pico-h2-color: #FFFFFF;
@@ -97,11 +112,8 @@ body {
 .notification.error {
     background-color: #F44336;
 }
-
-.loading-spinner {
-    display: inline-block;
-    margin-left: 10px;
-    animation: spin 1s infinite linear;
+.text-right {
+    text-align: right;
 }
 
 @keyframes fadeIn {
@@ -111,16 +123,6 @@ body {
 
     to {
         opacity: 1;
-    }
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
     }
 }
 
