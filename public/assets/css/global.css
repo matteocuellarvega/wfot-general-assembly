@@ -112,8 +112,12 @@ body {
 .notification.error {
     background-color: #F44336;
 }
-.text-right {
+.items-table .text-right,
+table .text-right {
     text-align: right;
+}
+.no-border {
+    border: none;
 }
 .bookable-items-table td:first-child,
 .bookable-items-table th:first-child {

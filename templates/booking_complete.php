@@ -40,7 +40,7 @@
     <thead>
       <tr>
         <th>Item</th>
-        <th>Price (USD)</th>
+        <th style="width: 15%">Price (USD)</th>
       </tr>
     </thead>
     <tbody>
@@ -57,8 +57,8 @@
         <td class="text-right">$<?=number_format($booking['fields']['Subtotal'] ?? 0, 2)?></td>
       </tr>
       <tr>
-        <td class="text-right">Total</td>
-        <td class="text-right">$<?=number_format($booking['fields']['Total'] ?? 0, 2)?></td>
+        <td class="text-right no-border">Total</td>
+        <td class="text-right no-border">$<?=number_format($booking['fields']['Total'] ?? 0, 2)?></td>
       </tr>
     </tfoot>
   </table>
