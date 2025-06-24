@@ -103,8 +103,7 @@ $(function(){
     const debouncedCalc = debounce(calc, config.debounceWait);
     $('input[data-cost]')
       .off('change click')
-      .on('change click', debouncedCalc)
-      .on('change', handleItemChange);
+      .on('change click', debouncedCalc);
     
     // Payment method change
     $payMethodSelect.on('change', handlePaymentMethodChange);
@@ -131,14 +130,6 @@ $(function(){
   }
   
   // Event handlers
-  // function handleItemChange() {
-  //   const itemName = $(this).closest('tr').find('td:first').text();
-  //   if (this.checked) {
-  //     showNotification(`Added ${itemName}`, 'success');
-  //   } else {
-  //     showNotification(`Removed ${itemName}`, 'warning');
-  //   }
-  // }
   
   function handlePaymentMethodChange() {
     const method = $(this).val();
