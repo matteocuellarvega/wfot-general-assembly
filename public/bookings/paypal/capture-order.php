@@ -49,6 +49,7 @@ try {
     $captureId = $result['purchase_units'][0]['payments']['captures'][0]['id'] ?? '';
     $payerEmail = $result['payer']['email_address'] ?? ''; // Get payer email if available
     $payerName = ($result['payer']['name']['given_name'] ?? '') . ' ' . ($result['payer']['name']['surname'] ?? ''); // Get payer name
+    $paymentAmount = $result['purchase_units'][0]['payments']['captures'][0]['amount']['value'] ?? '0.00';
 
     // Log successful capture
     error_log("Successfully captured payment: $captureId for booking $bookingId");
@@ -60,7 +61,8 @@ try {
         'Status' => 'Complete',
         'Payment Date' => date('Y-m-d H:i:s'), // Use datetime for precision
         'Payer Email' => $payerEmail, // Store payer email if field exists
-        'Payer Name' => trim($payerName) // Store payer name if field exists
+        'Payer Name' => trim($payerName), // Store payer name if field exists
+        'Payment Amount' => $paymentAmount // Store payment amount
     ]);
 
     // Return success response

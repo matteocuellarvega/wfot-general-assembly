@@ -98,6 +98,7 @@ class PayPalService
             'application_context' => [
                 'brand_name' => 'WFOT General Assembly',
                 'landing_page' => 'NO_PREFERENCE',
+                'shipping_preference' => 'NO_SHIPPING',
                 'user_action' => 'PAY_NOW',
                 'return_url' => env('APP_URL') . '/booking/success',
                 'cancel_url' => env('APP_URL') . '/booking/cancel'

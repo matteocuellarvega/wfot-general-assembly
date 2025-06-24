@@ -7,5 +7,4 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Stiphle' => array($vendorDir . '/davedevelopment/stiphle/src'),
-    'Rs\\Json' => array($vendorDir . '/php-jsonpointer/php-jsonpointer/src'),
 );

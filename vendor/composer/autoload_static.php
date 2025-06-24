@@ -13,17 +13,9 @@ class ComposerStaticInit0ae2c45e9b0d0d4f921f059b0e14055e
     );
 
     public static $prefixLengthsPsr4 = array (
-        'a' => 
-        array (
-            'apimatic\\jsonmapper\\' => 20,
-        ),
         'W' => 
         array (
             'WFOT\\' => 5,
-        ),
-        'U' => 
-        array (
-            'Unirest\\' => 8,
         ),
         'T' => 
         array (
@@ -39,9 +31,7 @@ class ComposerStaticInit0ae2c45e9b0d0d4f921f059b0e14055e
         ),
         'P' => 
         array (
-            'Psr\\Log\\' => 8,
             'PhpOption\\' => 10,
-            'PaypalServerSdkLib\\' => 19,
             'PHPMailer\\PHPMailer\\' => 20,
         ),
         'M' => 
@@ -66,11 +56,6 @@ class ComposerStaticInit0ae2c45e9b0d0d4f921f059b0e14055e
             'Dompdf\\' => 7,
             'DASPRiD\\Enum\\' => 13,
         ),
-        'C' => 
-        array (
-            'Core\\' => 5,
-            'CoreInterfaces\\' => 15,
-        ),
         'B' => 
         array (
             'BaconQrCode\\' => 12,
@@ -78,17 +63,9 @@ class ComposerStaticInit0ae2c45e9b0d0d4f921f059b0e14055e
     );
 
     public static $prefixDirsPsr4 = array (
-        'apimatic\\jsonmapper\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/apimatic/jsonmapper/src',
-        ),
         'WFOT\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
-        ),
-        'Unirest\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/apimatic/unirest-php/src',
         ),
         'TANIOS\\Airtable\\' => 
         array (
@@ -114,17 +91,9 @@ class ComposerStaticInit0ae2c45e9b0d0d4f921f059b0e14055e
         array (
             0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/src',
         ),
-        'Psr\\Log\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/log/src',
-        ),
         'PhpOption\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
-        ),
-        'PaypalServerSdkLib\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/paypal/paypal-server-sdk/src',
         ),
         'PHPMailer\\PHPMailer\\' => 
         array (
@@ -158,14 +127,6 @@ class ComposerStaticInit0ae2c45e9b0d0d4f921f059b0e14055e
         array (
             0 => __DIR__ . '/..' . '/dasprid/enum/src',
         ),
-        'Core\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/apimatic/core/src',
-        ),
-        'CoreInterfaces\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/apimatic/core-interfaces/src',
-        ),
         'BaconQrCode\\' => 
         array (
             0 => __DIR__ . '/..' . '/bacon/bacon-qr-code/src',
@@ -178,13 +139,6 @@ class ComposerStaticInit0ae2c45e9b0d0d4f921f059b0e14055e
             'Stiphle' => 
             array (
                 0 => __DIR__ . '/..' . '/davedevelopment/stiphle/src',
-            ),
-        ),
-        'R' => 
-        array (
-            'Rs\\Json' => 
-            array (
-                0 => __DIR__ . '/..' . '/php-jsonpointer/php-jsonpointer/src',
             ),
         ),
     );
