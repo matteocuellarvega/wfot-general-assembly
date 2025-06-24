@@ -131,14 +131,14 @@ $(function(){
   }
   
   // Event handlers
-  function handleItemChange() {
-    const itemName = $(this).closest('tr').find('td:first').text();
-    if (this.checked) {
-      showNotification(`Added ${itemName}`, 'success');
-    } else {
-      showNotification(`Removed ${itemName}`, 'warning');
-    }
-  }
+  // function handleItemChange() {
+  //   const itemName = $(this).closest('tr').find('td:first').text();
+  //   if (this.checked) {
+  //     showNotification(`Added ${itemName}`, 'success');
+  //   } else {
+  //     showNotification(`Removed ${itemName}`, 'warning');
+  //   }
+  // }
   
   function handlePaymentMethodChange() {
     const method = $(this).val();

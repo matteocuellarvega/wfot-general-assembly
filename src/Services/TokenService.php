@@ -4,37 +4,29 @@ namespace WFOT\Services;
 class TokenService
 {
     /**
-     * Checks if the provided token is valid for the given registration ID.
+     * Checks if the provided token is valid for the given Airtable record ID.
      *
-     * @param string $registrationId The registration ID to check against.
+     * @param string $recordId The Airtable record ID to check against.
      * @param string $token The token to validate.
+     * @param string|null $customSalt Optional custom salt to use instead of the default.
      * @return bool True if the token is valid, false otherwise.
      */
-    public static function check(string $registrationId, string $token): bool
+    public static function check(string $recordId, string $token, ?string $customSalt = null): bool
     {
-        return hash_equals(self::forRegistration($registrationId), $token);
+        return hash_equals(self::generate($recordId, $customSalt), $token);
     }
     
     /**
-     * Generates a token for a given registration ID.
+     * Generates a token for a given Airtable record ID.
      *
-     * @param string $registrationId The registration ID to generate a token for.
+     * @param string $recordId The Airtable record ID to generate a token for.
+     * @param string|null $customSalt Optional custom salt to use instead of the default.
      * @return string The generated token.
      */
-    public static function generate(string $registrationId): string
+    public static function generate(string $recordId, ?string $customSalt = null): string
     {
-        return hash_hmac('sha256', $registrationId, env('TOKEN_SALT'));
-    }
-
-    /**
-     * Generates the expected token for a given registration ID.
-     *
-     * @param string $registrationId The registration ID to generate the token for.
-     * @return string The expected token.
-     */
-    public static function forRegistration(string $registrationId): string
-    {
-        return hash_hmac('sha256', $registrationId, env('TOKEN_SALT'));
+        $salt = $customSalt ?? env('TOKEN_SALT');
+        return hash_hmac('sha256', $recordId, $salt);
     }
 }
 ?>

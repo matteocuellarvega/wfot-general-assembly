@@ -273,10 +273,10 @@ function getBooking(string $bookingId, AirtableService $airtableService): ?array
     // Extract only the needed fields
     return [
         'id' => $record['id'],
-        'status' => $record['fields']['Status'] ?? null, // fldVOX4YsF09pN5x9
-        'paymentStatus' => $record['fields']['Payment Status'] ?? null, // fldpZxt1Whc9jxptv
-        'paymentMethod' => $record['fields']['Payment Method'] ?? null, // flde9ksccaPhHGvNf
-        // Add other relevant booking fields if needed
+        'status' => $record['fields']['Status'] ?? null,
+        'paymentStatus' => $record['fields']['Payment Status'] ?? null,
+        'paymentMethod' => $record['fields']['Payment Method'] ?? null,
+        'confirmation' => $record['fields']['Booking Confirmation'] ?? null
     ];
 }
 

@@ -26,7 +26,7 @@ class EmailService
         $mail->addReplyTo('admin@wfot.org', 'World Federation of Occupational Therapists');
         $mail->setFrom(env('MAIL_FROM'), env('MAIL_FROM_NAME','WFOT'));
         $mail->addAddress($to, $name);
-        if($bcc = env('MAIL_BCC_ADMIN')) $mail->addBCC($bcc);
+        // if($bcc = env('MAIL_BCC_ADMIN')) $mail->addBCC($bcc);
         $mail->Subject = 'WFOT General Assembly - Booking Confirmation';
         
         // Create a more detailed email body
