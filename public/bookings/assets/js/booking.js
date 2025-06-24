@@ -154,7 +154,9 @@ $(function(){
     if (!validateForm()) return;
     
     // Prepare UI for submission
-    $confirmButton.prop('disabled', true).text('Processing...');
+    $confirmButton.prop('disabled', true)
+                  .attr('aria-busy', 'true')
+                  .text('Processing...');
     $errorMessage.text('');
     $paypalContainer.hide();
     
@@ -164,12 +166,8 @@ $(function(){
       data = data.split('&').filter(param => !param.startsWith('paymethod=')).join('&');
     }
     
-    // Display loading indicator
-    const $loadingIndicator = $('<div class="loading-spinner">Processing...</div>');
-    $loadingIndicator.insertAfter($confirmButton);
-    
     // Submit form data
-    submitBooking(data, $loadingIndicator);
+    submitBooking(data);
   }
   
   function validateForm() {
@@ -192,7 +190,7 @@ $(function(){
   }
   
   // API interactions
-  function submitBooking(data, $loadingIndicator) {
+  function submitBooking(data) {
     fetch('/bookings/save-booking.php', {
       method: 'POST',
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -210,14 +208,20 @@ $(function(){
     .catch(error => {
       console.error('Fetch Error:', error);
       $errorMessage.text('A network error occurred. Please check your connection and try again.');
-      $confirmButton.prop('disabled', false).text('Confirm booking');
-      $loadingIndicator.remove();
+      resetConfirmButton();
     });
+  }
+  
+  function resetConfirmButton() {
+    $confirmButton.prop('disabled', false)
+                 .removeAttr('aria-busy')
+                 .text('Confirm booking')
+                 .show();
   }
   
   function handleBookingError(error) {
     $errorMessage.text(error);
-    $confirmButton.prop('disabled', false).text('Confirm booking');
+    resetConfirmButton();
   }
   
   function handleBookingSuccess(json) {
@@ -259,9 +263,9 @@ $(function(){
   
   function handlePayPalApproval(json) {
     return (data, actions) => {
-      // Remove the actions.disable() call since it's no longer supported
-      // Instead, show a loading indicator to prevent multiple clicks
-      $paypalContainer.append('<p class="paypal-processing">Processing payment...</p>');
+      // Show loading state in PayPal container
+      const $paypalProcessing = $('<button disabled aria-busy="true">Processing payment...</button>');
+      $paypalContainer.append($paypalProcessing);
       
       return fetch('/bookings/paypal/capture-order.php', {
         method: 'POST',
@@ -282,15 +286,15 @@ $(function(){
           }
         } else {
           $errorMessage.text(res.error || 'Payment capture failed. Please try again.');
-          // No need to call actions.enable() either
-          $paypalContainer.find('p.paypal-processing').remove();
+          $paypalProcessing.remove();
+          resetConfirmButton();
         }
       })
       .catch((err) => {
         console.error('PayPal capture error:', err);
         $errorMessage.text('An error occurred while capturing the payment. Please try again.');
-        // No need to call actions.enable()
-        $paypalContainer.find('p.paypal-processing').remove();
+        $paypalProcessing.remove();
+        resetConfirmButton();
       });
     };
   }
@@ -298,14 +302,14 @@ $(function(){
   function handlePayPalError(err) {
     console.error('PayPal Button Error:', err);
     $errorMessage.text('An error occurred with PayPal. Please try selecting items again or choose another payment method.');
-    $confirmButton.prop('disabled', false).text('Confirm booking').show();
+    resetConfirmButton();
     $paypalContainer.hide().empty();
     paypalButtonsInstance = null;
   }
   
   function handlePayPalCancel() {
     $errorMessage.text('PayPal payment cancelled.');
-    $confirmButton.prop('disabled', false).text('Confirm booking').show();
+    resetConfirmButton();
     $paypalContainer.hide().empty();
     paypalButtonsInstance = null;
   }
