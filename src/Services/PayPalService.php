@@ -1,83 +1,149 @@
 <?php
 namespace WFOT\Services;
 
-// Import necessary classes from the new SDK
-use PaypalServerSdkLib\Controllers\OrdersController;
-use PaypalServerSdkLib\Environment;
-use PaypalServerSdkLib\Models\AmountWithBreakdownBuilder;
-use PaypalServerSdkLib\Models\Builders\ClientCredentialsAuthCredentialsBuilder;
-use PaypalServerSdkLib\Models\OrderIntent;
-use PaypalServerSdkLib\Models\OrderRequestBuilder;
-use PaypalServerSdkLib\Models\PurchaseUnitRequestBuilder;
-use PaypalServerSdkLib\PaypalServerSdkClient;
-use PaypalServerSdkLib\PaypalServerSdkClientBuilder;
-
 class PayPalService
 {
-    // Change client type hint
-    private PaypalServerSdkClient $client;
-    private OrdersController $ordersController;
-
+    private $clientId;
+    private $clientSecret;
+    private $baseUrl;
+    private $accessToken;
+    
     public function __construct()
     {
-        // Use the new SDK's builder pattern for client initialization
-        $clientId = env('PAYPAL_CLIENT_ID');
-        $clientSecret = env('PAYPAL_CLIENT_SECRET');
-        $environment = env('PAYPAL_MODE', 'sandbox') === 'live' ? Environment::PRODUCTION : Environment::SANDBOX;
-
-        $this->client = PaypalServerSdkClientBuilder::init()
-            ->clientCredentialsAuthCredentials(
-                ClientCredentialsAuthCredentialsBuilder::init(
-                    $clientId,
-                    $clientSecret
-                )
-            )
-            ->environment($environment)
-            ->build();
-
-        $this->ordersController = $this->client->getOrdersController();
+        $this->clientId = env('PAYPAL_CLIENT_ID');
+        $this->clientSecret = env('PAYPAL_CLIENT_SECRET');
+        $this->baseUrl = env('APP_ENV') === 'production'
+            ? 'https://api-m.paypal.com'
+            : 'https://api-m.sandbox.paypal.com';
     }
 
-    public function createOrder(float $amount, string $bookingId): array
+    /**
+     * Get an access token from PayPal API
+     * 
+     * @return string Access token
+     */
+    public function getAccessToken()
     {
-        // Build the request using the new SDK's builders
-        $orderRequest = OrderRequestBuilder::init(OrderIntent::CAPTURE)
-            ->purchaseUnits([
-                PurchaseUnitRequestBuilder::init()
-                    ->referenceId($bookingId)
-                    ->amount(
-                        AmountWithBreakdownBuilder::init('USD', number_format($amount, 2, '.', ''))
-                    )
-                    ->build()
-            ])
-            ->build();
-
-        // Prepare options array for the controller method
-        $options = [
-            'body' => $orderRequest,
-            'prefer' => 'return=representation' // Optional: Get full representation back
-        ];
-
-        // Execute the request using the OrdersController
-        $response = $this->ordersController->createOrder($options);
-
-        // Extract the ID from the ApiResponse
-        return ['id' => $response->getResult()->getId()];
+        // Return cached token if we already have one
+        if ($this->accessToken) {
+            return $this->accessToken;
+        }
+        
+        // Get a new token
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/v1/oauth2/token');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, 'grant_type=client_credentials');
+        curl_setopt($ch, CURLOPT_USERPWD, $this->clientId . ':' . $this->clientSecret);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Accept: application/json',
+            'Accept-Language: en_US'
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode !== 200) {
+            error_log("Failed to get PayPal access token: " . $response);
+            throw new \Exception("Failed to authenticate with PayPal");
+        }
+        
+        $data = json_decode($response, true);
+        $this->accessToken = $data['access_token'];
+        
+        return $this->accessToken;
     }
 
-    public function captureOrder(string $orderId): array
+    /**
+     * Create a PayPal order
+     * 
+     * @param float $amount Order amount
+     * @param string $currency Currency code (default: USD)
+     * @param string $bookingId Booking ID for reference
+     * @return array Order details
+     */
+    public function createOrder($amount, $currency = 'USD', $bookingId = null)
     {
-        // Prepare options array for the controller method
-        $options = [
-            'orderId' => $orderId,
-            'prefer' => 'return=representation' // Optional: Get full representation back
+        $accessToken = $this->getAccessToken();
+        
+        $payload = [
+            'intent' => 'CAPTURE',
+            'purchase_units' => [
+                [
+                    'amount' => [
+                        'currency_code' => $currency,
+                        'value' => number_format($amount, 2, '.', '')
+                    ],
+                    'description' => 'WFOT General Assembly Booking'
+                ]
+            ],
+            'application_context' => [
+                'brand_name' => 'WFOT General Assembly',
+                'landing_page' => 'NO_PREFERENCE',
+                'user_action' => 'PAY_NOW',
+                'return_url' => env('APP_URL') . '/booking/success',
+                'cancel_url' => env('APP_URL') . '/booking/cancel'
+            ]
         ];
+        
+        // Add custom ID if provided
+        if ($bookingId) {
+            $payload['purchase_units'][0]['custom_id'] = $bookingId;
+        }
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/v2/checkout/orders');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $accessToken
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode !== 201) {
+            error_log("Failed to create PayPal order: " . $response);
+            throw new \Exception("Failed to create PayPal order");
+        }
+        
+        return json_decode($response, true);
+    }
 
-        // Execute the request using the OrdersController
-        $response = $this->ordersController->captureOrder($options);
-
-        // Convert the result object to an array
-        return json_decode(json_encode($response->getResult()), true);
+    /**
+     * Capture a previously created order
+     * 
+     * @param string $orderId Order ID to capture
+     * @return array Capture details
+     */
+    public function captureOrder($orderId)
+    {
+        $accessToken = $this->getAccessToken();
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $this->baseUrl . "/v2/checkout/orders/{$orderId}/capture");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $accessToken
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        
+        if ($httpCode !== 201 && $httpCode !== 200) {
+            error_log("Failed to capture PayPal order: " . $response);
+            throw new \Exception("Failed to capture PayPal payment");
+        }
+        
+        return json_decode($response, true);
     }
 
     /**
@@ -94,6 +160,8 @@ class PayPalService
      */
     public function verifyWebhookSignature($webhookId, $payload, $authAlgo, $certUrl, $transmissionId, $transmissionSig, $transmissionTime)
     {
+        $accessToken = $this->getAccessToken();
+        
         $data = [
             'auth_algo' => $authAlgo,
             'cert_url' => $certUrl,
@@ -105,11 +173,8 @@ class PayPalService
         ];
 
         try {
-            $uri = $this->baseUrl . '/v1/notifications/verify-webhook-signature';
-            $accessToken = $this->getAccessToken();
-
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $uri);
+            curl_setopt($ch, CURLOPT_URL, $this->baseUrl . '/v1/notifications/verify-webhook-signature');
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
