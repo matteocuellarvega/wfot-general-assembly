@@ -62,7 +62,7 @@ try {
         'Payment Date' => date('Y-m-d H:i:s'), // Use datetime for precision
         'Payer Email' => $payerEmail, // Store payer email if field exists
         'Payer Name' => trim($payerName), // Store payer name if field exists
-        'Payment Amount' => $paymentAmount // Store payment amount
+        'Payment Amount' => floatval($paymentAmount) // Store payment amount
     ]);
 
     // Return success response
@@ -75,7 +75,7 @@ try {
     echo json_encode([
         'success' => false, 
         'error' => 'An unexpected error occurred while processing your payment. Please try again or refresh the page.',
-        'debug' => env('APP_ENV') === 'production' ? null : $e->getMessage()
+        'debug' => env('DEBUG') === true ? $e->getMessage() : null
     ]);
     exit;
 }

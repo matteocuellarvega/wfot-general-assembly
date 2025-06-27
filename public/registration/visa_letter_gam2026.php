@@ -201,9 +201,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $debug) {
     $mail->Password = env('SMTP_PASSWORD');
     $mail->addReplyTo(env('MAIL_BCC_ADMIN'), env('MAIL_FROM_NAME'));
     $mail->setFrom(env('MAIL_FROM'), env('MAIL_FROM_NAME'));
-    if (!$debug) {
-      $mail->addCC(env('MAIL_BCC_ADMIN'), env('MAIL_FROM_NAME'));
-    }
     $mail->addAddress($emailTo, $emailToName);
     $mail->Subject = '37th WFOT Meeting - General Assembly: Your Invitation Letter';
     $mail->msgHTML('
