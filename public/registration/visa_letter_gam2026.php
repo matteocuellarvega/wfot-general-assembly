@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $debug) {
     <p>Dear '.$salutation.' '.$firstname.' '.$lastname.',</p>
     <p>This letter is to invite you to attend the 37th Meeting of the General Assembly of the World Federation of Occupational Therapists (WFOT) and the 19th WFOT Congress in Bangkok, Thailand.</p>
 
-    <p>The WFOT General Assembly Meeting will be held between 5th and 7th February 2025. The venue for the General Assembly Meeting is at:</p>
+    <p>The WFOT General Assembly Meeting will be held between 5th and 7th February 2026. The venue for the General Assembly Meeting is at:</p>
     <p><strong>Carlton Hotel Bangkok Sukhumvit</strong><br>
     491 Sukhumvit Road, Klongtoey Nua,<br>
     Wattana, Bangkok 10110, Thailand</p>
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $debug) {
     <p>Email: enquiry@carltonhotel.co.th<br>
     Telephone: +66 2 090 7888</p>
 
-    <p>The WFOT Congress will be held between 9th and 12th February 2025. The venue for the Congress is at: </p>
+    <p>The WFOT Congress will be held between 9th and 12th February 2026. The venue for the Congress is at: </p>
     <p><strong>Bangkok International Trade and Exhibition Centre (BITEC)</strong><br>
     88 Band Na-Trat Road, Bang Na<br>
     Bangkok 10260, Thailand<br>
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $debug) {
     <p>Dear '.$salutation.' '.$firstname.' '.$lastname.',</p>
     <p>This letter is to invite you to attend the 37th Meeting of the General Assembly of the World Federation of Occupational Therapists (WFOT) in Bangkok, Thailand.</p>
 
-    <p>The WFOT General Assembly Meeting will be held between 5th and 7th February 2025. The venue for the General Assembly Meeting is at:</p>
+    <p>The WFOT General Assembly Meeting will be held between 5th and 7th February 2026. The venue for the General Assembly Meeting is at:</p>
     <p><strong>Carlton Hotel Bangkok Sukhumvit</strong><br>
     491 Sukhumvit Road, Klongtoey Nua,<br>
     Wattana, Bangkok 10110, Thailand</p>

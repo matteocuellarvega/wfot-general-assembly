@@ -135,7 +135,7 @@ function getMeetingConfig(string $code): ?array
             'id' => strtoupper($code),
             'text' => '37th WFOT Meeting - General Assembly',
             'formBase' => 'https://forms.wfot.org/m0TnbBEfRiY5NuJL0juS', // Base URL for the registration form
-            'scopedView' => 'viw8qJdkirrHUGhOM', // Use the correct view ID for Automations view (scoped to current meeting)
+            'scopedView' => 'viw8qJdkirrHUGhOM', // Registered View for GAM2026
         ];
     }
     return null;
@@ -306,7 +306,7 @@ try {
     if ($personId) {
         $memberRecord = getMember($personId, $airtableService);
         if (!$memberRecord) {
-            sendResponse(['error' => 'Your record could not be found or has been deactivated. Please contact admin@wfot.org'], $responseFormat, null, 404, $isDebug);
+            sendResponse(['error' => 'Your Delegates Hub account could not be found or has been deactivated. Please contact admin@wfot.org'], $responseFormat, null, 404, $isDebug);
         }
         
         // Check if member's role is allowed to register
