@@ -169,34 +169,25 @@ class AirtableService
             $apiKey = env('AIRTABLE_API_KEY');
             $baseId = env('AIRTABLE_BASE_ID');
             
-            $url = "https://api.airtable.com/v0/{$baseId}/{$table}";
+            // Use the correct upload attachment endpoint
+            $url = "https://content.airtable.com/v0/{$baseId}/{$recordId}/{$fieldId}/uploadAttachment";
             
-            // Create attachment data
-            $attachmentData = [
-                'records' => [
-                    [
-                        'id' => $recordId,
-                        'fields' => [
-                            $fieldId => [
-                                [
-                                    'url' => 'data:application/pdf;base64,' . base64_encode($pdfContent),
-                                    'filename' => $filename
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
+            // Prepare the request body according to API docs
+            $requestData = [
+                'contentType' => 'application/pdf',
+                'file' => base64_encode($pdfContent),
+                'filename' => $filename
             ];
             
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+            curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 "Authorization: Bearer {$apiKey}",
                 "Content-Type: application/json"
             ]);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($attachmentData));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($requestData));
             
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

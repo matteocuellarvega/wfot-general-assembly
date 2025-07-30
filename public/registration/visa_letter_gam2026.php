@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $debug) {
       $lastname = $formdata["lastName"];
       $email = $formdata["email"];
       $position = $formdata["role"];
-      $memberorg = $formdata["organisation"];
+      $memberorg = $formdata["organisation"] ?? null;
       $mailingstreet = $formdata["address1"];
       $mailingcity = $formdata["address2"];
       $mailingpostalcode = $formdata["address3"];
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $debug) {
 
     //Format for Observer
     if ($position === "Observer"){
-      if ($memberorg != ""){
+      if ($memberorg){
         $roleString = "Member of ".$memberorg;
       } else {
         $roleString = null;
