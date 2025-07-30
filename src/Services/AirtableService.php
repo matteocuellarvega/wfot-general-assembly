@@ -159,4 +159,62 @@ class AirtableService
             throw $e; // Re-throw
         }
     }
+
+    /** Upload attachment to a record */
+    public function uploadAttachment(string $table, string $recordId, string $fieldId, string $filename, string $pdfContent): bool
+    {
+        $this->logDebug("uploadAttachment() called - Table: $table, Record: $recordId, Field: $fieldId, Filename: $filename");
+        
+        try {
+            $apiKey = env('AIRTABLE_API_KEY');
+            $baseId = env('AIRTABLE_BASE_ID');
+            
+            $url = "https://api.airtable.com/v0/{$baseId}/{$table}";
+            
+            // Create attachment data
+            $attachmentData = [
+                'records' => [
+                    [
+                        'id' => $recordId,
+                        'fields' => [
+                            $fieldId => [
+                                [
+                                    'url' => 'data:application/pdf;base64,' . base64_encode($pdfContent),
+                                    'filename' => $filename
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+            
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "Authorization: Bearer {$apiKey}",
+                "Content-Type: application/json"
+            ]);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($attachmentData));
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpCode === 200) {
+                $this->logDebug("uploadAttachment() success - File uploaded successfully");
+                return true;
+            } else {
+                $this->logDebug("uploadAttachment() failed - HTTP {$httpCode}, Response: {$response}");
+                error_log("AirtableService ERROR: uploadAttachment() failed - HTTP {$httpCode}, Response: {$response}");
+                return false;
+            }
+            
+        } catch (Exception $e) {
+            $this->logDebug("uploadAttachment() exception - Error: " . $e->getMessage());
+            error_log("AirtableService ERROR: uploadAttachment() exception - " . $e->getMessage());
+            return false;
+        }
+    }
 }

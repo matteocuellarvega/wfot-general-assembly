@@ -21,8 +21,8 @@ if ($debug) {
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 use Dompdf\Dompdf;
+use WFOT\Services\AirtableService;
 
 // Check if the request method is POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST' || $debug) {
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $debug) {
       $mailingcity = $formdata["address2"];
       $mailingpostalcode = $formdata["address3"];
       $mailingcountry = $formdata["country"];
-
+      $registrationAirtableId = $formdata["recordId"];
     }
 
     //Format for Observer
@@ -215,7 +215,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || $debug) {
     if(!$mail->send()){
         echo json_encode(['success' => false, 'error' => $mail->ErrorInfo]);
     }else{
-        echo json_encode(['success' => true]);
+        $response = ['success' => true];
+        
+        // Upload PDF to Airtable if recordId is provided
+        if (!$debug && isset($registrationAirtableId) && !empty($registrationAirtableId)) {
+            try {
+                $airtableService = new AirtableService();
+                $tableId = 'tblxFb5zXR3ZKtaw9';
+                $fieldId = 'flduDuIyEEazX7dxp';
+                
+                $uploadSuccess = $airtableService->uploadAttachment(
+                    $tableId,
+                    $registrationAirtableId,
+                    $fieldId,
+                    $filename,
+                    $pdfString
+                );
+                
+                if ($uploadSuccess) {
+                    $response['airtable_upload'] = 'success';
+                } else {
+                    $response['airtable_upload'] = 'failed';
+                    $response['airtable_error'] = 'Upload failed';
+                }
+                
+            } catch (Exception $e) {
+                error_log("Airtable upload exception: " . $e->getMessage());
+                $response['airtable_upload'] = 'failed';
+                $response['airtable_error'] = $e->getMessage();
+            }
+        }
+        
+        echo json_encode($response);
     }
 
 } else {
