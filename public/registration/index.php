@@ -194,7 +194,7 @@ function getMemberCurrentRegistration(string $memberRecordId, string $scopedView
  */
 function getObserverCurrentRegistration(string $email, string $meetingId, AirtableService $airtableService): ?array
 {
-     $filterFormula = sprintf("AND({Email} = '%s', {Meeting ID} = '%s')", $email, $meetingId);
+     $filterFormula = sprintf("AND({Email} = '%s', {Meeting ID} = '%s', {Role} = 'Observer')", $email, $meetingId);
      $params = [
         "maxRecords" => 1, // Fetch only one record
         "filterByFormula" => $filterFormula,
