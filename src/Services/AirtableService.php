@@ -160,6 +160,61 @@ class AirtableService
         }
     }
 
+    /** Delete */
+    public function delete(string $table, string $id): bool
+    {
+        $this->logDebug("delete() called - Table: $table, ID: $id");
+        try {
+            $response = $this->sdk->deleteContent("$table/$id");
+
+            if ($response && !isset($response->error)) {
+                $this->logDebug("delete() success - Record deleted: $id");
+                return true;
+            } else {
+                $errorMsg = isset($response->error) ? json_encode($response->error) : 'Delete operation failed';
+                $this->logDebug("delete() failed - Error/Details: $errorMsg");
+                throw new Exception("Airtable delete failed: " . $errorMsg);
+            }
+        } catch (Exception $e) {
+            $this->logDebug("delete() exception - Table: $table, ID: $id, Error: " . $e->getMessage());
+            error_log("AirtableService ERROR: delete() failed for $table/$id - " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /** Delete multiple records in batch */
+    public function deleteBatch(string $table, array $ids): bool
+    {
+        $this->logDebug("deleteBatch() called - Table: $table, IDs: " . json_encode($ids));
+        try {
+            $successCount = 0;
+            $totalIds = count($ids);
+
+            // Delete records one by one (Airtable doesn't have a native batch delete)
+            foreach ($ids as $id) {
+                try {
+                    $this->delete($table, $id);
+                    $successCount++;
+                    $this->logDebug("deleteBatch() - Successfully deleted record $id");
+                } catch (Exception $e) {
+                    $this->logDebug("deleteBatch() - Failed to delete record $id: " . $e->getMessage());
+                    error_log("AirtableService ERROR: deleteBatch() failed to delete $table/$id - " . $e->getMessage());
+                    // Continue with other deletions even if one fails
+                }
+            }
+
+            $this->logDebug("deleteBatch() completed - Table: $table, Successfully deleted: $successCount/$totalIds records");
+
+            // Return true if at least some deletions succeeded
+            return $successCount > 0;
+
+        } catch (Exception $e) {
+            $this->logDebug("deleteBatch() exception - Table: $table, IDs: " . json_encode($ids) . ", Error: " . $e->getMessage());
+            error_log("AirtableService ERROR: deleteBatch() failed for table $table - " . $e->getMessage());
+            return false;
+        }
+    }
+
     /** Upload attachment to a record */
     public function uploadAttachment(string $table, string $recordId, string $fieldId, string $filename, string $pdfContent): bool
     {
