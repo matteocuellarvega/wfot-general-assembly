@@ -142,9 +142,6 @@ function handlePaymentIntentFailed($data, $bookingRepo, $eventType) {
     echo json_encode(['status' => 'success', 'message' => 'Payment failure recorded']);
 }
 
-/**
- * Generate and send receipt to customer
- */
 function generateAndSendReceipt($bookingId) {
     $bookingRepo = new BookingRepository();
     $booking = $bookingRepo->find($bookingId);
@@ -153,44 +150,40 @@ function generateAndSendReceipt($bookingId) {
         return false;
     }
     
-    $db = new AirtableService();
-    $itemIds = $booking['fields']['Booked Items'] ?? [];
-    $items = [];
-    $bookedItemsTable = 'tbluEJs6UHGhLbvJX';
-    
-    foreach ($itemIds as $bi) {
-        $itemRecord = $db->find($bookedItemsTable, $bi);
-        if ($itemRecord) {
-            $items[] = $itemRecord;
-        }
+    // Get registration to obtain meeting ID
+    $registrationId = $booking['fields']['Registration'][0] ?? null;
+    if (!$registrationId) {
+        error_log("No registration found for booking $bookingId");
+        return false;
     }
     
-    // Generate PDF receipt
-    $confirmationDir = dirname(__DIR__, 3) . '/storage/confirmations/';
-    if (!is_dir($confirmationDir)) {
-        mkdir($confirmationDir, 0775, true);
+    $regRepo = new WFOT\Repository\RegistrationRepository();
+    $registration = $regRepo->find($registrationId);
+    if (!$registration) {
+        error_log("Failed to find registration $registrationId for booking $bookingId");
+        return false;
     }
-    $file = $confirmationDir . $bookingId . '.pdf';
     
-    try {
-        PdfService::generateConfirmationFromData($booking, $items, $file);
+    $meetingId = $registration['fields']['Meeting ID'] ?? null;
+    if (!$meetingId) {
+        error_log("No meeting ID found in registration $registrationId for booking $bookingId");
+        return false;
+    }
+    
+    // Send email confirmation (no PDF attachment needed - user can download from confirmation page)
+    $recipientEmail = $booking['fields']['Email'][0] ?? null;
+    $recipientName = $booking['fields']['First Name'] ?? '';
+    
+    if ($recipientEmail) {
+        // Generate confirmation URL for the email
+        $confirmationToken = WFOT\Services\TokenService::generate($bookingId);
+        $confirmationUrl = rtrim(env('APP_URL'), '/') . '/bookings/confirmation.php?booking=' . $bookingId . '&tok=' . $confirmationToken;
         
-        // Send email
-        $recipientEmail = $booking['fields']['Email'][0] ?? null;
-        $recipientName = $booking['fields']['First Name'] ?? '';
-        $meetingId = $booking['fields']['Meeting ID'] ?? null;
-        
-        if ($recipientEmail) {
-            EmailService::sendConfirmation($recipientEmail, $recipientName, $file, $meetingId ?? 'general-assembly');
-        } else {
-            error_log("No recipient email found for booking $bookingId");
-        }
-        
-        // Clean up file
-        @unlink($file);
-        return true;
-    } catch (Exception $e) {
-        error_log("Error generating receipt for booking $bookingId: " . $e->getMessage());
+        // Send confirmation email without PDF attachment
+        $emailService = new WFOT\Services\EmailService();
+        return $emailService->sendConfirmationWithoutPdf($recipientEmail, $recipientName, $confirmationUrl, $meetingId);
+    } else {
+        error_log("No recipient email found for booking $bookingId");
         return false;
     }
 }

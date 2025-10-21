@@ -11,9 +11,9 @@ class EmailService
         }
     }
 
-    public static function sendConfirmation(string $to, string $name, string $pdfPath, string $meetingId): bool
+    public static function sendConfirmationWithoutPdf(string $to, string $name, string $confirmationUrl, string $meetingId): bool
     {
-        self::logDebug("sendConfirmation called for to: $to, name: $name, pdfPath: $pdfPath, meetingId: $meetingId");
+        self::logDebug("sendConfirmationWithoutPdf called for to: $to, name: $name, confirmationUrl: $confirmationUrl, meetingId: $meetingId");
         $mail = new PHPMailer(true);
         $mail->CharSet = "UTF-8";
         $mail->isSMTP();
@@ -29,36 +29,33 @@ class EmailService
         // if($bcc = env('MAIL_BCC_ADMIN')) $mail->addBCC($bcc);
         $mail->Subject = 'WFOT General Assembly - Booking Confirmation';
         
-        // Create a more detailed email body
+        // Create email body with confirmation link
         $mail->isHTML(true);
-        $mail->Body = self::generateConfirmationEmailBody($name, $meetingId);
-        $mail->AltBody = strip_tags(str_replace('<br>', "\n", self::generateConfirmationEmailBody($name, $meetingId)));
-        
-        if (file_exists($pdfPath)) {
-            $mail->addAttachment($pdfPath, 'WFOT_' . $meetingId . '_Booking_Confirmation.pdf');
-        } else {
-            self::logDebug("Warning: PDF file not found at path: $pdfPath");
-        }
+        $mail->Body = self::generateConfirmationEmailBodyWithoutPdf($name, $meetingId, $confirmationUrl);
+        $mail->AltBody = strip_tags(str_replace('<br>', "\n", self::generateConfirmationEmailBodyWithoutPdf($name, $meetingId, $confirmationUrl)));
         
         self::logDebug("PHPMailer configured, attempting to send confirmation.");
         $result = $mail->send();
-        self::logDebug("sendConfirmation result: " . ($result ? "Success" : "Failure"));
+        self::logDebug("sendConfirmationWithoutPdf result: " . ($result ? "Success" : "Failure"));
         return $result;
     }
     
     /**
-     * Generate the HTML body for the basic confirmation email
+     * Generate the HTML body for the confirmation email without PDF attachment
      * 
      * @param string $name Recipient name
+     * @param string $meetingId Meeting identifier
+     * @param string $confirmationUrl URL to download the PDF confirmation
      * @return string Email HTML body
      */
-    private static function generateConfirmationEmailBody(string $name, string $meetingId): string
+    private static function generateConfirmationEmailBodyWithoutPdf(string $name, string $meetingId, string $confirmationUrl): string
     {
         return '
         <img src="' . rtrim(env('APP_URL'), '/') . '/assets/img/logo-'. strtolower($meetingId) .'.png" alt="WFOT Logo" style="max-width: 200px;">
         <h2>Booking Confirmation</h2>
         <p>Dear ' . htmlspecialchars($name) . ',</p>
-        <p>Thank you for your booking for the WFOT General Assembly. Please find your booking confirmation attached to this email.</p>
+        <p>Thank you for your booking for the WFOT General Assembly. Your payment has been successfully processed.</p>
+        <p>You can download your booking confirmation here: <a href="' . htmlspecialchars($confirmationUrl) . '">Download Confirmation PDF</a></p>
         <p>If you have any questions or need assistance, please contact us at <a href="mailto:admin@wfot.org">admin@wfot.org</a>.</p>
         <p>Kind regards,<br>WFOT Organisational Management Team</p>';
     }

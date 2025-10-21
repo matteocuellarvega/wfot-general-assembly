@@ -131,8 +131,10 @@ if (
 
         $userEmail = $reg['fields']['Email'] ?? null;
         $userName = ($reg['fields']['First Name'] ?? '') . ' ' . ($reg['fields']['Last Name'] ?? '');
-        if ($userEmail) {
-            EmailService::sendConfirmation($userEmail, $userName, $confirmationPath, $meetingId ?? 'general-assembly');
+        if ($userEmail && $meetingId) {
+            EmailService::sendConfirmation($userEmail, $userName, $confirmationPath, $meetingId);
+        } elseif ($userEmail) {
+            error_log("Cannot send confirmation email for booking {$booking['id']} - missing meeting ID");
         }
     }
 
