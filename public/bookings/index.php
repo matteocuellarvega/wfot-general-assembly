@@ -7,6 +7,11 @@ use WFOT\Repository\RegistrationRepository;
 use WFOT\Repository\ItemRepository;
 use WFOT\Services\StripeService;
 use WFOT\Services\TokenService;
+use WFOT\Services\AirtableService;
+use WFOT\Services\QrCodeService;
+use WFOT\Services\PdfService;
+use WFOT\Services\EmailService;
+
 
 $bookingId = isset($_GET['booking'])
     ? preg_replace('/[^a-zA-Z0-9]/', '', $_GET['booking'])
