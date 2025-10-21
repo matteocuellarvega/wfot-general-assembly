@@ -171,6 +171,10 @@ function generateAndSendReceipt($bookingId) {
         
         // Send confirmation email without PDF attachment
         $emailService = new WFOT\Services\EmailService();
+        error_log("Sending confirmation email to $recipientEmail for booking $bookingId");
+        error_log("Confirmation URL: $confirmationUrl");
+        error_log("Recipient Name: $recipientName");
+        error_log("Meeting ID: $meetingId");
         return $emailService->sendConfirmation($recipientEmail, $recipientName, $confirmationUrl, $meetingId);
     } else {
         error_log("No recipient email found for booking $bookingId");
