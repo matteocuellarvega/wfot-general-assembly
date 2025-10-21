@@ -66,11 +66,11 @@
 
 <div class="confirmation-footer no-print">
   <p>A copy of this confirmation has been emailed to <?=safe_email($booking['fields']['Email'][0] ?? '')?>. If you do not receive it, please check your spam folder or contact us for assistance.</p>
-  <p>This confirmation is not proof of payment; if you paid via PayPal, refer to your PayPal receipt, and if you are paying in cash, you will receive a receipt upon payment.</p>
+  <p>This confirmation is not proof of payment; if you paid via Stripe, refer to your Stripe receipt, and if you are paying in cash, you will receive a receipt upon payment.</p>
   <p>Thank you for your booking!</p>
 </div>
 
 <div class="confirmation-footer only-print">
-  <p>Please keep a copy of your confirmation. This confirmation is not proof of payment; if you paid via PayPal, refer to your PayPal receipt, and if you are paying in cash, you will receive a receipt upon payment.</p>
+  <p>Please keep a copy of your confirmation. This confirmation is not proof of payment; if you paid via Stripe, refer to your Stripe receipt, and if you are paying in cash, you will receive a receipt upon payment.</p>
   <p>Thank you for your booking!</p>
 </div>

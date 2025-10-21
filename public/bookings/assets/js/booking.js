@@ -5,20 +5,20 @@ $(function(){
   const $payMethodSelect = $('#paymethod');
   const $confirmButton = $('#confirm');
   const $errorMessage = $('#error-message');
-  const $paypalContainer = $('#paypal-button-container');
+  const $stripeContainer = $('#stripe-card-element');
   const $dietInput = $('#diet');
   const $form = $('#booking-form');
   
   // State variables
   let currentTotal = 0;
-  let paypalButtonsInstance = null;
+  let stripe = null;
+  let cardElement = null;
   let formChanged = false;
   
   // Configuration
   const config = {
     maxDietaryLength: 500,
     notificationDuration: 2000,
-    paypalInfoDuration: 5000,
     debounceWait: 100
   };
   
@@ -55,12 +55,12 @@ $(function(){
     formChanged = false;
   }
   
-  function resetPayPalButtons() {
-    if (paypalButtonsInstance) {
-      paypalButtonsInstance.close();
-      paypalButtonsInstance = null;
-      $paypalContainer.empty();
+  function resetStripeElements() {
+    if (cardElement) {
+      cardElement.destroy();
+      cardElement = null;
     }
+    $stripeContainer.empty();
   }
   
   // Calculation function to update subtotal and UI state
@@ -77,10 +77,10 @@ $(function(){
       $paymentSection.show();
     } else {
       $paymentSection.hide();
-      $paypalContainer.hide();
+      $stripeContainer.hide();
     }
     
-    resetPayPalButtons();
+    resetStripeElements();
   }
   
   // Initialize the page
@@ -133,8 +133,8 @@ $(function(){
   
   function handlePaymentMethodChange() {
     const method = $(this).val();
-    if (method === 'PayPal') {
-      $confirmButton.text('Pay with PayPal')
+    if (method === 'Stripe') {
+      $confirmButton.text('Pay with Stripe')
     } else {
       $confirmButton.text('Confirm booking');
     }
@@ -151,7 +151,7 @@ $(function(){
                   .attr('aria-busy', 'true')
                   .text('Processing...');
     $errorMessage.text('');
-    $paypalContainer.hide();
+    $stripeContainer.hide();
     
     // Prepare data
     let data = $form.serialize();
@@ -184,6 +184,9 @@ $(function(){
   
   // API interactions
   function submitBooking(data) {
+    // Add CSRF token to data
+    data += '&csrf_token=' + encodeURIComponent(window.bookingFormData.csrfToken);
+    
     fetch('/bookings/save-booking.php', {
       method: 'POST',
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -220,8 +223,8 @@ $(function(){
   function handleBookingSuccess(json) {
     if (json.payment === 'Cash' || json.payment === 'None') {
       handleCashPayment();
-    } else if (json.payment === 'Paypal') {
-      handlePayPalPayment(json);
+    } else if (json.payment === 'Stripe') {
+      handleStripePayment(json);
     } else {
       $errorMessage.text('Unexpected response from server.');
       $confirmButton.prop('disabled', false).text('Confirm booking');
@@ -240,71 +243,84 @@ $(function(){
     }
   }
   
-  function handlePayPalPayment(json) {
+  function handleStripePayment(json) {
     $confirmButton.hide();
-    $paypalContainer.show();
+    $stripeContainer.show();
     
-    paypalButtonsInstance = paypal.Buttons({
-      createOrder: () => json.orderID,
-      onApprove: handlePayPalApproval(json),
-      onError: handlePayPalError,
-      onCancel: handlePayPalCancel
+    // Initialize Stripe
+    if (!stripe) {
+      stripe = Stripe(window.bookingFormData.stripePublishableKey);
+    }
+    
+    // Create card element
+    const elements = stripe.elements();
+    cardElement = elements.create('card', {
+      style: {
+        base: {
+          fontSize: '16px',
+          color: '#32325d',
+        },
+      },
     });
+    cardElement.mount('#stripe-card-element');
     
-    paypalButtonsInstance.render('#paypal-button-container');
-  }
-  
-  function handlePayPalApproval(json) {
-    return (data, actions) => {
-      // Show loading state in PayPal container
-      const $paypalProcessing = $('<button disabled aria-busy="true">Processing payment...</button>');
-      $paypalContainer.append($paypalProcessing);
+    // Handle form submission for Stripe payment
+    $form.off('submit.stripe').on('submit.stripe', async function(e) {
+      e.preventDefault();
       
-      return fetch('/bookings/paypal/capture-order.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({orderID: data.orderID, booking_id: json.booking_id})
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.success) {
-          clearFormChangedFlag();
-          
-          if (isEditMode) {
-            const cleanUrl = getUrlWithoutEditParam();
-            console.log("Redirecting to:", cleanUrl);
-            window.location.href = cleanUrl;
-          } else {
-            window.location.reload();
+      const {error, paymentIntent} = await stripe.confirmCardPayment(
+        json.paymentIntent.client_secret,
+        {
+          payment_method: {
+            card: cardElement,
           }
-        } else {
-          $errorMessage.text(res.error || 'Payment capture failed. Please try again.');
-          $paypalProcessing.remove();
+        }
+      );
+      
+      if (error) {
+        $errorMessage.text(error.message);
+        resetConfirmButton();
+      } else {
+        // Payment succeeded, capture on server
+        try {
+          const response = await fetch('/bookings/stripe/capture-order.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              paymentIntentId: paymentIntent.id,
+              booking_id: json.booking_id,
+              csrf_token: window.bookingFormData.csrfToken
+            })
+          });
+          
+          const result = await response.json();
+          if (result.success) {
+            clearFormChangedFlag();
+            if (isEditMode) {
+              const cleanUrl = getUrlWithoutEditParam();
+              window.location.href = cleanUrl;
+            } else {
+              window.location.reload();
+            }
+          } else {
+            $errorMessage.text(result.error || 'Payment processing failed.');
+            resetConfirmButton();
+          }
+        } catch (err) {
+          console.error('Stripe capture error:', err);
+          $errorMessage.text('An error occurred while processing the payment.');
           resetConfirmButton();
         }
-      })
-      .catch((err) => {
-        console.error('PayPal capture error:', err);
-        $errorMessage.text('An error occurred while capturing the payment. Please try again.');
-        $paypalProcessing.remove();
-        resetConfirmButton();
-      });
-    };
+      }
+    });
   }
   
-  function handlePayPalError(err) {
-    console.error('PayPal Button Error:', err);
-    $errorMessage.text('An error occurred with PayPal. Please try selecting items again or choose another payment method.');
+  function handleStripeError(err) {
+    console.error('Stripe Error:', err);
+    $errorMessage.text('An error occurred with Stripe. Please try selecting items again or choose another payment method.');
     resetConfirmButton();
-    $paypalContainer.hide().empty();
-    paypalButtonsInstance = null;
-  }
-  
-  function handlePayPalCancel() {
-    $errorMessage.text('PayPal payment cancelled.');
-    resetConfirmButton();
-    $paypalContainer.hide().empty();
-    paypalButtonsInstance = null;
+    $stripeContainer.hide().empty();
+    resetStripeElements();
   }
   
   // Initialize the page

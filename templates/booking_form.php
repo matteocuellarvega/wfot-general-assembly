@@ -11,6 +11,7 @@ $selectedItems = $selectedItems ?? [];
 
   <form method="post" id="booking-form">
     <input type="hidden" name="booking_id" value="<?=htmlspecialchars($bookingId)?>">
+    <input type="hidden" name="csrf_token" value="<?=htmlspecialchars(generateCsrfToken())?>">
     <table role="grid" class="bookable-items-table">
       <thead><tr><th>Item</th><th>Type</th><th class="text-right">Cost</th><th class="text-right">Add to Booking</th></tr></thead>
       <tbody>
@@ -40,25 +41,27 @@ $selectedItems = $selectedItems ?? [];
         <label for="paymethod">Payment method</label>
         <select id="paymethod" name="paymethod">
           <option value="">Please choose</option>
-          <option value="PayPal" <?= ($selectedPayMethod === 'PayPal') ? 'selected' : '' ?>>PayPal</option>
+          <option value="Stripe" <?= ($selectedPayMethod === 'Stripe') ? 'selected' : '' ?>>Stripe</option>
           <option value="Cash" <?= ($selectedPayMethod === 'Cash') ? 'selected' : '' ?>>Cash (pay on arrival)</option>
         </select>
     </div>
 
     <h3>Subtotal: $<span id="subtotal">0.00</span> USD</h3>
-    <div id="paypal-button-container" style="margin-top: 10px;"></div>
+    <div id="stripe-card-element" style="margin-top: 10px; display: none;"></div>
     <div id="error-message" style="color: red; margin-top: 10px; margin-bottom: 10px;"></div>
     <button type="submit" id="confirm">Confirm booking</button>
   </form>
 </article>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://www.paypal.com/sdk/js?client-id=<?=env('PAYPAL_CLIENT_ID')?>&currency=USD"></script>
+<script src="https://js.stripe.com/v3/"></script>
 <script>
-  // Pass PHP variables to JavaScript
-  const bookingFormData = {
-    isEditMode: <?= json_encode(isset($_GET['edit']) && $_GET['edit'] === 'true') ?>,
-    selectedPayMethod: <?= json_encode($selectedPayMethod ?? '') ?>
-  };
+// Pass PHP variables to JavaScript
+const bookingFormData = {
+  isEditMode: <?= json_encode(isset($_GET['edit']) && $_GET['edit'] === 'true') ?>,
+  selectedPayMethod: <?= json_encode($selectedPayMethod ?? '') ?>,
+  csrfToken: <?= json_encode(generateCsrfToken()) ?>,
+  stripePublishableKey: <?= json_encode(env('STRIPE_PUBLISHABLE_KEY')) ?>
+};
 </script>
 <script src="/bookings/assets/js/booking.js"></script>

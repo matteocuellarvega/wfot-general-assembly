@@ -3,24 +3,47 @@ require_once __DIR__ . '/../../src/bootstrap.php';
 
 use WFOT\Repository\BookingRepository;
 use WFOT\Services\AirtableService;
-use WFOT\Services\PayPalService;
+use WFOT\Services\StripeService;
 
 // Basic Sanitization
 $input = file_get_contents('php://input');
 parse_str($input, $post);
 
-$bookingId = filter_var($post['booking_id'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-$itemIds = isset($post['item']) && is_array($post['item'])
-           ? array_map('filter_var', $post['item'], array_fill(0, count($post['item']), FILTER_SANITIZE_FULL_SPECIAL_CHARS))
-           : [];
-$diet = trim(filter_var($post['diet'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
-$payMethod = filter_var($post['paymethod'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS); // removed default
-if(empty($payMethod)) {
-    echo json_encode(['error' => 'Payment method not provided']); exit;
+// CSRF Protection
+$csrfToken = $post['csrf_token'] ?? '';
+if (!validateCsrfToken($csrfToken)) {
+    echo json_encode(['error' => 'Invalid CSRF token']);
+    exit;
 }
 
-if (empty($bookingId)) {
-    echo json_encode(['error' => 'Invalid Booking ID']); exit;
+// Enhanced Input Validation and Sanitization
+$bookingId = filter_var($post['booking_id'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+if (empty($bookingId) || !preg_match('/^[a-zA-Z0-9_-]+$/', $bookingId)) {
+    echo json_encode(['error' => 'Invalid Booking ID']);
+    exit;
+}
+
+$itemIds = [];
+if (isset($post['item']) && is_array($post['item'])) {
+    foreach ($post['item'] as $itemId) {
+        $sanitizedId = filter_var($itemId, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        if (!empty($sanitizedId) && preg_match('/^[a-zA-Z0-9_-]+$/', $sanitizedId)) {
+            $itemIds[] = $sanitizedId;
+        }
+    }
+}
+
+$diet = trim(filter_var($post['diet'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+if (strlen($diet) > 500) {
+    echo json_encode(['error' => 'Dietary requirements too long (max 500 characters)']);
+    exit;
+}
+
+$payMethod = filter_var($post['paymethod'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$allowedPaymentMethods = ['Stripe', 'Cash'];
+if (!empty($payMethod) && !in_array($payMethod, $allowedPaymentMethods)) {
+    echo json_encode(['error' => 'Invalid payment method']);
+    exit;
 }
 
 $bookingRepo = new BookingRepository();
@@ -118,6 +141,11 @@ $bookingRepo->update($bookingId, [
 // Use the discounted total for payment processing
 $total = $totalAfterDiscount;
 
+// Validate payment method if total > 0
+if ($total > 0 && empty($payMethod)) {
+    echo json_encode(['error' => 'Payment method is required for bookings with items']);
+    exit;
+}
 
 // Handle based on the *actual* total
 if ($total == 0) {
@@ -137,20 +165,20 @@ if ($total == 0) {
     // Send confirmation (not receipt yet) for cash booking? Optional.
     echo json_encode(['payment' => 'Cash', 'booking_id' => $bookingId]); exit;
 
-} else { // PayPal flow for total > 0
-    // Ensure Payment Status is Pending before creating PayPal order
+} else { // Stripe flow for total > 0
+    // Ensure Payment Status is Pending before creating Stripe PaymentIntent
      $bookingRepo->update($bookingId, [
         'Payment Status' => 'Pending',
         'Status' => 'Pending' // Keep status pending until payment is confirmed
     ]);
-    $pp = new PayPalService();
+    $stripe = new StripeService();
     try {
-        $order = $pp->createOrder($total, 'USD', $bookingId);
-        echo json_encode(['payment' => 'Paypal', 'orderID' => $order['id'], 'booking_id' => $bookingId]);
+        $intent = $stripe->createPaymentIntent($total, 'USD', $bookingId);
+        echo json_encode(['payment' => 'Stripe', 'paymentIntent' => ['id' => $intent->id, 'client_secret' => $intent->client_secret], 'booking_id' => $bookingId]);
     } catch (\Exception $e) {
         // Log the error server-side
-        error_log("PayPal Order Creation Failed: " . $e->getMessage());
-        echo json_encode(['error' => 'Failed to create PayPal order. Please try again.']);
+        error_log("Stripe PaymentIntent Creation Failed: " . $e->getMessage());
+        echo json_encode(['error' => 'Failed to create Stripe payment intent. Please try again.']);
     }
     exit;
 }

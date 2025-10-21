@@ -17,6 +17,9 @@ if (isset($_ENV['DEBUG']) && $_ENV['DEBUG'] === 'true') {
     ini_set('display_startup_errors', 0);
 }
 
+// Start session for CSRF protection and user state
+session_start();
+
 /**
  * Simple helper to get env value with default
  */
@@ -29,5 +32,22 @@ function safe_email(string $email): string {
     if (!strpos($email,'@')) return $email;
     [$u,$d] = explode('@',$email,2);
     return substr($u,0,2).str_repeat('*', max(strlen($u)-2,0)).'@'.substr($d,0,1).str_repeat('*', max(strlen($d)-2,0));
+}
+
+/**
+ * Generate a CSRF token
+ */
+function generateCsrfToken(): string {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Validate CSRF token
+ */
+function validateCsrfToken(string $token): bool {
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 ?>

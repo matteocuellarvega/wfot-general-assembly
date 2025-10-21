@@ -169,20 +169,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Handle Pending Bookings
       if (bookingStatus === 'Pending') {
-         if (paymentMethod === 'PayPal') {
+         if (paymentMethod === 'Stripe') {
             if (paymentStatus === 'Pending' || paymentStatus === 'Unpaid') {
                return {
                   html: `<h4>Booking</h4>
-                         <p>You have started a booking but have not completed payment via PayPal. Please use the link below to complete your payment.</p>
+                         <p>You have started a booking but have not completed payment via Stripe. Please use the link below to complete your payment.</p>
                          <div id="${bookingPlaceholderId}"><i>Loading payment link...</i></div>`,
                   needsLink: true,
                   registrationId: registrationId,
                };
             }
-            // Unusual state for PayPal
+            // Unusual state for Stripe
             return {
                html: `<h4>Booking</h4>
-                      <p>Your booking status is unusual (Booking: Pending, Payment: ${paymentStatus}, Method: PayPal). 
+                      <p>Your booking status is unusual (Booking: Pending, Payment: ${paymentStatus}, Method: Stripe). 
                       Please contact <a href="mailto:admin@wfot.org">admin@wfot.org</a> for assistance.</p>`,
                needsLink: false,
             };
@@ -213,8 +213,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
          if (paymentStatus === 'Not Required') {
             message = 'Your booking is complete. No payment is required.';
-         } else if (paymentMethod === 'PayPal' && paymentStatus === 'Paid') {
-            message = 'Your booking is complete and has been paid via PayPal. Thank you!';
+         } else if (paymentMethod === 'Stripe' && paymentStatus === 'Paid') {
+            message = 'Your booking is complete and has been paid via Stripe. Thank you!';
          } else if (paymentMethod === 'Cash' && paymentStatus === 'Paid') {
             message = 'Your booking is complete and has been paid by cash. Thank you!';
          } else if (paymentMethod === 'Cash' && paymentStatus === 'Pending') {
