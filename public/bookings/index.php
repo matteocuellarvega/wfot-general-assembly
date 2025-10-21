@@ -132,7 +132,7 @@ if (
         $userEmail = $reg['fields']['Email'] ?? null;
         $userName = ($reg['fields']['First Name'] ?? '') . ' ' . ($reg['fields']['Last Name'] ?? '');
         if ($userEmail) {
-            EmailService::sendConfirmation($userEmail, $userName, $confirmationPath, $meetingId);
+            EmailService::sendConfirmation($userEmail, $userName, $confirmationPath, $meetingId ?? 'general-assembly');
         }
     }
 

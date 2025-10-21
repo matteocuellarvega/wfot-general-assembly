@@ -173,7 +173,7 @@ function generateAndSendReceipt($bookingId) {
     $file = $confirmationDir . $bookingId . '.pdf';
     
     try {
-        PdfService::generateConfirmation($booking, $items, $file);
+        PdfService::generateConfirmationFromData($booking, $items, $file);
         
         // Send email
         $recipientEmail = $booking['fields']['Email'][0] ?? null;
@@ -181,7 +181,7 @@ function generateAndSendReceipt($bookingId) {
         $meetingId = $booking['fields']['Meeting ID'] ?? null;
         
         if ($recipientEmail) {
-            EmailService::sendConfirmation($recipientEmail, $recipientName, $file, $meetingId);
+            EmailService::sendConfirmation($recipientEmail, $recipientName, $file, $meetingId ?? 'general-assembly');
         } else {
             error_log("No recipient email found for booking $bookingId");
         }
