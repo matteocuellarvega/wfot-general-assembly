@@ -130,6 +130,7 @@ if (
         $bookingRepo->update($booking['id'], ['Confirmation' => $confirmationUrl]);
 
         $userEmail = $reg['fields']['Email'] ?? null;
+        $meetingId = $reg['fields']['Meeting ID'] ?? null;
         $userName = ($reg['fields']['First Name'] ?? '') . ' ' . ($reg['fields']['Last Name'] ?? '');
         if ($userEmail && $meetingId) {
             EmailService::sendConfirmation($userEmail, $userName, $confirmationPath, $meetingId);
