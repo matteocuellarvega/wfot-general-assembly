@@ -57,9 +57,7 @@ $selectedItems = $selectedItems ?? [];
 // Pass PHP variables to JavaScript
 const bookingFormData = {
   isEditMode: <?= json_encode(isset($_GET['edit']) && $_GET['edit'] === 'true') ?>,
-  selectedPayMethod: <?= json_encode($selectedPayMethod ?? '') ?>,
-  csrfToken: '<?= generateCsrfToken() ?>',
-  stripePublishableKey: '<?= env('STRIPE_PUBLISHABLE_KEY') ?>'
+  selectedPayMethod: <?= json_encode($selectedPayMethod ?? '') ?>
 };
 </script>
 <script src="/bookings/assets/js/booking.js"></script>
