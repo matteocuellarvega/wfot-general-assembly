@@ -83,6 +83,7 @@ if($registrationId){
     if(!$booking){ http_response_code(404); echo 'Booking not found'; exit; }
     $registrationId = $booking['fields']['Registration'][0] ?? null;
     $reg = $regRepo->find($registrationId);
+    $meetingId = $reg['fields']['Meeting ID'] ?? null;
 }
 
 if (
