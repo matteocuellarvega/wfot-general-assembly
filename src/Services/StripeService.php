@@ -127,39 +127,61 @@ class StripeService
     }
 
     /**
-     * Create a Stripe Checkout Session
+     * Create a Stripe Checkout Session with itemized line items
      *
-     * @param float $amount Amount in cents
+     * @param array $items Array of items with 'name' and 'amount' keys
      * @param string $currency Currency code
      * @param string $bookingId Booking ID
      * @param string $successUrl URL to redirect on success
      * @param string $cancelUrl URL to redirect on cancel
      * @return \Stripe\Checkout\Session
      */
-    public function createCheckoutSession($amount, $currency = 'USD', $bookingId = null, $successUrl = null, $cancelUrl = null)
+    public function createCheckoutSession($items, $currency = 'USD', $bookingId = null, $successUrl = null, $cancelUrl = null)
     {
-        // Validate amount
-        $amount = is_numeric($amount) ? (float)$amount : 0;
-        if ($amount <= 0) {
-            throw new \Exception("Invalid payment amount: $amount");
+        // Handle backward compatibility - if $items is a float, convert to single item
+        if (is_numeric($items)) {
+            $items = [['name' => 'WFOT General Assembly Booking', 'amount' => (float)$items]];
         }
 
-        $amountInCents = (int)round($amount * 100);
+        if (!is_array($items) || empty($items)) {
+            throw new \Exception("Invalid items array");
+        }
+
+        $lineItems = [];
+        $totalAmount = 0;
+
+        foreach ($items as $item) {
+            if (!isset($item['name']) || !isset($item['amount'])) {
+                throw new \Exception("Each item must have 'name' and 'amount' keys");
+            }
+
+            $amount = is_numeric($item['amount']) ? (float)$item['amount'] : 0;
+            if ($amount < 0) {
+                throw new \Exception("Invalid item amount: {$amount}");
+            }
+
+            $amountInCents = (int)round($amount * 100);
+            $totalAmount += $amountInCents;
+
+            $lineItems[] = [
+                'price_data' => [
+                    'currency' => strtolower($currency),
+                    'product_data' => [
+                        'name' => $item['name'],
+                    ],
+                    'unit_amount' => $amountInCents,
+                ],
+                'quantity' => 1,
+            ];
+        }
+
+        if ($totalAmount <= 0) {
+            throw new \Exception("Invalid total payment amount: {$totalAmount}");
+        }
 
         $params = [
             'payment_method_types' => ['card'],
-            'line_items' => [
-                [
-                    'price_data' => [
-                        'currency' => strtolower($currency),
-                        'product_data' => [
-                            'name' => 'WFOT General Assembly Booking',
-                        ],
-                        'unit_amount' => $amountInCents,
-                    ],
-                    'quantity' => 1,
-                ],
-            ],
+            'line_items' => $lineItems,
             'mode' => 'payment',
             'metadata' => [
                 'booking_id' => $bookingId ?? '',

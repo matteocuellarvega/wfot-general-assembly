@@ -95,13 +95,20 @@ foreach ($itemIds as $iid) {
 
 // Calculate total first to determine if payment is needed
 $total = 0.0;
+$stripeItems = []; // Array to hold items for Stripe Checkout
 // Fetch the newly created booked items to calculate the total
 if (!empty($newBookedItemIds)) {
     $bookedItems = [];
     foreach ($newBookedItemIds as $itemId) {
         $bookedItem = $db->find($bookedItemsTable, $itemId);
         if ($bookedItem && isset($bookedItem['fields']['Item Total'])) {
-            $total += floatval($bookedItem['fields']['Item Total']);
+            $itemTotal = floatval($bookedItem['fields']['Item Total']);
+            $total += $itemTotal;
+            // Add item for Stripe Checkout
+            $stripeItems[] = [
+                'name' => $bookedItem['fields']['Item'] ?? 'Unknown Item',
+                'amount' => $itemTotal
+            ];
         }
         $bookedItems[] = $bookedItem;
     }
@@ -173,7 +180,7 @@ if ($total == 0) {
     $successUrl = env('APP_URL') . '/bookings/index.php?session_id={CHECKOUT_SESSION_ID}&payment=success';
     $cancelUrl = env('APP_URL') . '/bookings/index.php?booking=' . urlencode($bookingId) . '&payment=cancel';
     try {
-        $session = $stripe->createCheckoutSession($total, 'USD', $bookingId, $successUrl, $cancelUrl);
+        $session = $stripe->createCheckoutSession($stripeItems, 'USD', $bookingId, $successUrl, $cancelUrl);
         echo json_encode(['payment' => 'Stripe', 'checkout_url' => $session->url, 'booking_id' => $bookingId]);
     } catch (\Exception $e) {
         // Log the error server-side
