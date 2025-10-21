@@ -6,6 +6,7 @@ use WFOT\Repository\BookingRepository;
 use WFOT\Repository\RegistrationRepository;
 use WFOT\Repository\ItemRepository;
 use WFOT\Services\StripeService;
+use WFOT\Services\TokenService;
 
 $bookingId = isset($_GET['booking'])
     ? preg_replace('/[^a-zA-Z0-9]/', '', $_GET['booking'])
