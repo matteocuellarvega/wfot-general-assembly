@@ -106,7 +106,7 @@ if (!empty($itemIds)) {
 } else {
     // If no items selected, clear payment method? Or leave as is?
     // Let's clear it for consistency if total becomes 0.
-     $updateData['Payment Method'] = ''; // Or appropriate empty value for Airtable field type
+     $updateData['Payment Method'] = 'Not Applicable'; // Or appropriate empty value for Airtable field type
 }
 
 $bookingRepo->update($bookingId, $updateData);
