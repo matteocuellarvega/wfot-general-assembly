@@ -5,14 +5,11 @@ $(function(){
   const $payMethodSelect = $('#paymethod');
   const $confirmButton = $('#confirm');
   const $errorMessage = $('#error-message');
-  const $stripeContainer = $('#stripe-card-element');
   const $dietInput = $('#diet');
   const $form = $('#booking-form');
   
   // State variables
   let currentTotal = 0;
-  let stripe = null;
-  let cardElement = null;
   let formChanged = false;
   
   // Configuration
@@ -77,7 +74,6 @@ $(function(){
       $paymentSection.show();
     } else {
       $paymentSection.hide();
-      $stripeContainer.hide();
     }
     
     resetStripeElements();
@@ -247,77 +243,8 @@ $(function(){
   }
   
   function handleStripePayment(json) {
-    $confirmButton.hide();
-    $stripeContainer.show();
-    
-    // Initialize Stripe
-    const stripeKey = window.bookingFormData?.stripePublishableKey || 'pk_test_...'; // Fallback for testing
-    if (!stripe) {
-      stripe = Stripe(stripeKey);
-    }
-    
-    // Create card element
-    const elements = stripe.elements();
-    cardElement = elements.create('card', {
-      style: {
-        base: {
-          fontSize: '16px',
-          color: '#32325d',
-        },
-      },
-    });
-    cardElement.mount('#stripe-card-element');
-    
-    // Handle form submission for Stripe payment
-    $form.off('submit.stripe').on('submit.stripe', async function(e) {
-      e.preventDefault();
-      
-      const {error, paymentIntent} = await stripe.confirmCardPayment(
-        json.paymentIntent.client_secret,
-        {
-          payment_method: {
-            card: cardElement,
-          }
-        }
-      );
-      
-      if (error) {
-        $errorMessage.text(error.message);
-        resetConfirmButton();
-      } else {
-        // Payment succeeded, capture on server
-        try {
-          const csrfToken = $('input[name="csrf_token"]').val();
-          const response = await fetch('/bookings/stripe/capture-order.php', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-              paymentIntentId: paymentIntent.id,
-              booking_id: json.booking_id,
-              csrf_token: csrfToken
-            })
-          });
-          
-          const result = await response.json();
-          if (result.success) {
-            clearFormChangedFlag();
-            if (isEditMode) {
-              const cleanUrl = getUrlWithoutEditParam();
-              window.location.href = cleanUrl;
-            } else {
-              window.location.reload();
-            }
-          } else {
-            $errorMessage.text(result.error || 'Payment processing failed.');
-            resetConfirmButton();
-          }
-        } catch (err) {
-          console.error('Stripe capture error:', err);
-          $errorMessage.text('An error occurred while processing the payment.');
-          resetConfirmButton();
-        }
-      }
-    });
+    // Redirect to Stripe Checkout
+    window.location.href = json.checkout_url;
   }
   
   function handleStripeError(err) {

@@ -47,14 +47,12 @@ $selectedItems = $selectedItems ?? [];
     </div>
 
     <h3>Subtotal: $<span id="subtotal">0.00</span> USD</h3>
-    <div id="stripe-card-element" style="margin-top: 10px; display: none;"></div>
     <div id="error-message" style="color: red; margin-top: 10px; margin-bottom: 10px;"></div>
     <button type="submit" id="confirm">Confirm booking</button>
   </form>
 </article>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://js.stripe.com/v3/"></script>
 <script>
 // Pass PHP variables to JavaScript
 const bookingFormData = {

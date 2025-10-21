@@ -56,8 +56,8 @@ $data = $event->data->object;
 error_log("Processing Stripe webhook event: {$eventType}");
 
 switch ($eventType) {
-    case 'payment_intent.succeeded':
-        handlePaymentIntentSucceeded($data, $bookingRepo);
+    case 'checkout.session.completed':
+        handleCheckoutSessionCompleted($data, $bookingRepo);
         break;
         
     case 'payment_intent.payment_failed':
@@ -71,14 +71,14 @@ switch ($eventType) {
 }
 
 /**
- * Handle successful payment intent
+ * Handle successful checkout session completion
  */
-function handlePaymentIntentSucceeded($data, $bookingRepo) {
-    $paymentIntentId = $data->id;
-    $status = $data->status;
+function handleCheckoutSessionCompleted($data, $bookingRepo) {
+    $sessionId = $data->id;
+    $paymentStatus = $data->payment_status;
     
-    if ($status !== 'succeeded') {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid payment intent status']);
+    if ($paymentStatus !== 'paid') {
+        echo json_encode(['status' => 'error', 'message' => 'Payment not completed']);
         return;
     }
     
@@ -105,11 +105,11 @@ function handlePaymentIntentSucceeded($data, $bookingRepo) {
     // Update booking
     $bookingRepo->update($bookingId, [
         'Payment Status' => 'Paid',
-        'Payment Reference' => $data->latest_charge ?? $paymentIntentId,
+        'Payment Reference' => $sessionId,
         'Status' => 'Complete',
         'Payment Date' => date('Y-m-d'),
-        'Payment Amount' => $data->amount / 100,
-        'Payee Email' => $data->receipt_email ?? null
+        'Payment Amount' => $data->amount_total / 100,
+        'Payee Email' => $data->customer_details->email ?? null
     ]);
     
     // Generate and send receipt

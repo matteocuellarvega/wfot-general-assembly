@@ -166,19 +166,21 @@ if ($total == 0) {
     echo json_encode(['payment' => 'Cash', 'booking_id' => $bookingId]); exit;
 
 } else { // Stripe flow for total > 0
-    // Ensure Payment Status is Pending before creating Stripe PaymentIntent
+    // Ensure Payment Status is Pending before creating Stripe Checkout Session
      $bookingRepo->update($bookingId, [
         'Payment Status' => 'Pending',
         'Status' => 'Pending' // Keep status pending until payment is confirmed
     ]);
     $stripe = new StripeService();
+    $successUrl = env('APP_URL') . '/bookings/index.php?booking=' . urlencode($bookingId) . '&payment=success';
+    $cancelUrl = env('APP_URL') . '/bookings/index.php?booking=' . urlencode($bookingId) . '&payment=cancel';
     try {
-        $intent = $stripe->createPaymentIntent($total, 'USD', $bookingId);
-        echo json_encode(['payment' => 'Stripe', 'paymentIntent' => ['id' => $intent->id, 'client_secret' => $intent->client_secret], 'booking_id' => $bookingId]);
+        $session = $stripe->createCheckoutSession($total, 'USD', $bookingId, $successUrl, $cancelUrl);
+        echo json_encode(['payment' => 'Stripe', 'checkout_url' => $session->url, 'booking_id' => $bookingId]);
     } catch (\Exception $e) {
         // Log the error server-side
-        error_log("Stripe PaymentIntent Creation Failed: " . $e->getMessage());
-        echo json_encode(['error' => 'Failed to create Stripe payment intent. Please try again.']);
+        error_log("Stripe Checkout Session Creation Failed: " . $e->getMessage());
+        echo json_encode(['error' => 'Failed to create Stripe checkout session. Please try again.']);
     }
     exit;
 }

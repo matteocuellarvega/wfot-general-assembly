@@ -127,13 +127,71 @@ class StripeService
     }
 
     /**
-     * Get the Stripe client for advanced operations
+     * Create a Stripe Checkout Session
      *
-     * @return \Stripe\StripeClient
+     * @param float $amount Amount in cents
+     * @param string $currency Currency code
+     * @param string $bookingId Booking ID
+     * @param string $successUrl URL to redirect on success
+     * @param string $cancelUrl URL to redirect on cancel
+     * @return \Stripe\Checkout\Session
      */
-    public function getClient()
+    public function createCheckoutSession($amount, $currency = 'USD', $bookingId = null, $successUrl = null, $cancelUrl = null)
     {
-        return $this->stripe;
+        // Validate amount
+        $amount = is_numeric($amount) ? (float)$amount : 0;
+        if ($amount <= 0) {
+            throw new \Exception("Invalid payment amount: $amount");
+        }
+
+        $amountInCents = (int)round($amount * 100);
+
+        $params = [
+            'payment_method_types' => ['card'],
+            'line_items' => [
+                [
+                    'price_data' => [
+                        'currency' => strtolower($currency),
+                        'product_data' => [
+                            'name' => 'WFOT General Assembly Booking',
+                        ],
+                        'unit_amount' => $amountInCents,
+                    ],
+                    'quantity' => 1,
+                ],
+            ],
+            'mode' => 'payment',
+            'metadata' => [
+                'booking_id' => $bookingId ?? '',
+            ],
+            'success_url' => $successUrl ?? env('APP_URL') . '/booking/success?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => $cancelUrl ?? env('APP_URL') . '/booking/cancel',
+        ];
+
+        try {
+            $session = \Stripe\Checkout\Session::create($params);
+            error_log("Stripe Checkout Session created: " . $session->id . " for booking " . $bookingId);
+            return $session;
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            error_log("Failed to create Stripe Checkout Session: " . $e->getMessage());
+            throw new \Exception("Failed to create checkout session: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Retrieve a Checkout Session
+     *
+     * @param string $sessionId
+     * @return \Stripe\Checkout\Session
+     */
+    public function retrieveCheckoutSession($sessionId)
+    {
+        try {
+            return \Stripe\Checkout\Session::retrieve($sessionId);
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            error_log("Failed to retrieve Stripe Checkout Session: " . $e->getMessage());
+            throw new \Exception("Failed to retrieve checkout session: " . $e->getMessage());
+        }
     }
 }
 ?>
