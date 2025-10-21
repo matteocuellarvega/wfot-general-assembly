@@ -109,6 +109,8 @@ if (!empty($itemIds)) {
     //  $updateData['Payment Method'] = 'Not Applicable'; // Or appropriate empty value for Airtable field type
 }
 
+error_log("Updating booking $bookingId with data: " . print_r($updateData, true));
+
 $bookingRepo->update($bookingId, $updateData);
 
 
