@@ -1,6 +1,4 @@
 $(function(){
-  console.log('Booking form JavaScript loaded');
-  
   // DOM element cache
   const $subtotal = $('#subtotal');
   const $paymentSection = $('#payment-section');
@@ -9,8 +7,6 @@ $(function(){
   const $errorMessage = $('#error-message');
   const $dietInput = $('#diet');
   const $form = $('#booking-form');
-  
-  console.log('Form elements cached:', $form.length);
   
   // State variables
   let currentTotal = 0;
@@ -89,8 +85,6 @@ $(function(){
   
   // Event listeners setup
   function setupEventListeners() {
-    console.log('Setting up event listeners');
-    
     // Item selection events
     const debouncedCalc = debounce(calc, config.debounceWait);
     $('input[data-cost]')
@@ -101,7 +95,6 @@ $(function(){
     $payMethodSelect.on('change', handlePaymentMethodChange);
     
     // Form submission
-    console.log('Attaching form submit handler');
     $form.on('submit', handleFormSubmit);
     
     // Track form changes
@@ -133,18 +126,11 @@ $(function(){
     }
   }
   
-  function handleFormSubmit(e) {
-    console.log('Form submit handler called');
+    function handleFormSubmit(e) {
     e.preventDefault();
-    console.log('Default prevented');
     
     // Validation
-    if (!validateForm()) {
-      console.log('Validation failed');
-      return;
-    }
-    
-    console.log('Validation passed, proceeding with submission');
+    if (!validateForm()) return;
     
     // Prepare UI for submission
     $confirmButton.prop('disabled', true)

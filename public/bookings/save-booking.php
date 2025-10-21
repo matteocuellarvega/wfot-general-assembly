@@ -172,7 +172,7 @@ if ($total == 0) {
         'Status' => 'Pending' // Keep status pending until payment is confirmed
     ]);
     $stripe = new StripeService();
-    $successUrl = env('APP_URL') . '/bookings/index.php?booking=' . urlencode($bookingId) . '&payment=success';
+    $successUrl = env('APP_URL') . '/bookings/index.php?session_id={CHECKOUT_SESSION_ID}&payment=success';
     $cancelUrl = env('APP_URL') . '/bookings/index.php?booking=' . urlencode($bookingId) . '&payment=cancel';
     try {
         $session = $stripe->createCheckoutSession($total, 'USD', $bookingId, $successUrl, $cancelUrl);

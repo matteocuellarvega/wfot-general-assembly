@@ -5,11 +5,7 @@ require_once __DIR__ . '/../../src/bootstrap.php';
 use WFOT\Repository\BookingRepository;
 use WFOT\Repository\RegistrationRepository;
 use WFOT\Repository\ItemRepository;
-use WFOT\Services\TokenService;
-use WFOT\Services\AirtableService; // Make sure this is included
-use WFOT\Services\QrCodeService;
-use WFOT\Services\PdfService;
-use WFOT\Services\EmailService;
+use WFOT\Services\StripeService;
 
 $bookingId = isset($_GET['booking'])
     ? preg_replace('/[^a-zA-Z0-9]/', '', $_GET['booking'])
@@ -22,12 +18,36 @@ $registrationId = isset($_GET['registration'])
 $token = $_GET['tok'] ?? null;
 $regenerate = isset($_GET['regenerate']) && $_GET['regenerate'] === 'true';
 $editBooking = isset($_GET['edit']) && $_GET['edit'] === 'true';
+$sessionId = $_GET['session_id'] ?? null;
 
 $meetingId = null; // Initialize meetingId to null
 
 $bookingRepo = new BookingRepository();
 $regRepo = new RegistrationRepository();
 $itemRepo = new ItemRepository();
+
+// Handle Stripe session_id parameter (for payment success/cancel redirects)
+if ($sessionId) {
+    try {
+        $stripeService = new StripeService();
+        $session = $stripeService->retrieveCheckoutSession($sessionId);
+        $bookingId = $session->metadata->booking_id ?? null;
+        if ($bookingId) {
+            // Redirect to the proper booking URL without session_id
+            $redirectUrl = '/bookings/index.php?booking=' . urlencode($bookingId);
+            if (isset($_GET['payment'])) {
+                $redirectUrl .= '&payment=' . urlencode($_GET['payment']);
+            }
+            header('Location: ' . $redirectUrl);
+            exit;
+        }
+    } catch (Exception $e) {
+        error_log("Error retrieving Stripe session $sessionId: " . $e->getMessage());
+        http_response_code(400);
+        echo 'Invalid session ID';
+        exit;
+    }
+}
 
 if(!$bookingId && !$registrationId){
     http_response_code(400); echo 'Missing parameter'; exit;
