@@ -184,8 +184,11 @@ $(function(){
   
   // API interactions
   function submitBooking(data) {
-    // Add CSRF token to data
-    data += '&csrf_token=' + encodeURIComponent(window.bookingFormData.csrfToken);
+    // Add CSRF token to data - read from form field instead of window object
+    const csrfToken = $('input[name="csrf_token"]').val();
+    if (csrfToken) {
+      data += '&csrf_token=' + encodeURIComponent(csrfToken);
+    }
     
     fetch('/bookings/save-booking.php', {
       method: 'POST',
@@ -248,8 +251,9 @@ $(function(){
     $stripeContainer.show();
     
     // Initialize Stripe
+    const stripeKey = window.bookingFormData?.stripePublishableKey || 'pk_test_...'; // Fallback for testing
     if (!stripe) {
-      stripe = Stripe(window.bookingFormData.stripePublishableKey);
+      stripe = Stripe(stripeKey);
     }
     
     // Create card element
@@ -283,13 +287,14 @@ $(function(){
       } else {
         // Payment succeeded, capture on server
         try {
+          const csrfToken = $('input[name="csrf_token"]').val();
           const response = await fetch('/bookings/stripe/capture-order.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
               paymentIntentId: paymentIntent.id,
               booking_id: json.booking_id,
-              csrf_token: window.bookingFormData.csrfToken
+              csrf_token: csrfToken
             })
           });
           

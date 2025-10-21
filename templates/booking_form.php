@@ -60,8 +60,8 @@ $selectedItems = $selectedItems ?? [];
 const bookingFormData = {
   isEditMode: <?= json_encode(isset($_GET['edit']) && $_GET['edit'] === 'true') ?>,
   selectedPayMethod: <?= json_encode($selectedPayMethod ?? '') ?>,
-  csrfToken: <?= json_encode(generateCsrfToken()) ?>,
-  stripePublishableKey: <?= json_encode(env('STRIPE_PUBLISHABLE_KEY')) ?>
+  csrfToken: '<?= generateCsrfToken() ?>',
+  stripePublishableKey: '<?= env('STRIPE_PUBLISHABLE_KEY') ?>'
 };
 </script>
 <script src="/bookings/assets/js/booking.js"></script>
