@@ -149,7 +149,12 @@ if (
     // $selectedItems = array_map(fn($record) => $record['id'], $existingBookedItems);
     $selectedItems = array_map(fn($record) => $record['fields']['Bookable Item ID'] ?? '', $existingBookedItems);
     $selectedPayMethod = $booking['fields']['Payment Method'] ?? '';
-    $items = $itemRepo->listForMeeting($meetingId, $reg['fields']['Role']);
+    
+    // Only fetch items if we have a valid meeting ID
+    $items = [];
+    if ($meetingId) {
+        $items = $itemRepo->listForMeeting($meetingId, $reg['fields']['Role']);
+    }
 
     include dirname(__DIR__,2).'/templates/booking-header.php';
     include dirname(__DIR__,2).'/templates/booking_form.php';

@@ -109,7 +109,8 @@ function handleCheckoutSessionCompleted($data, $bookingRepo) {
         'Status' => 'Complete',
         'Payment Date' => date('Y-m-d'),
         'Payment Amount' => $data->amount_total / 100,
-        'Payee Email' => $data->customer_details->email ?? null
+        'Payer Email' => $data->customer_details->email ?? null,
+        'Payer Name' => $data->customer_details->name ?? null
     ]);
     
     // Generate and send receipt

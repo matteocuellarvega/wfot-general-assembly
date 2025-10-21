@@ -64,8 +64,8 @@ $itemsTable = 'tblT0M8sYqgHq6Tsa';
 // --- Modification: Clear existing booked items first ---
 // This prevents duplicates if the user goes back and resubmits
 $existingBookedItems = $db->all($bookedItemsTable, [
-    'filterByFormula' => sprintf("{Booking}='%s'", $bookingId),
-    'fields' => ['id'] // Only need IDs to delete
+    'filterByFormula' => sprintf("{Booking}='%s'", $bookingId)
+    // Removed 'fields' => ['id'] since 'id' is not a field name
 ]);
 $existingBookedItemIds = array_map(fn($record) => $record['id'], $existingBookedItems);
 if (!empty($existingBookedItemIds)) {
