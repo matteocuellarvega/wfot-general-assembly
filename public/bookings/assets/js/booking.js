@@ -52,14 +52,6 @@ $(function(){
     formChanged = false;
   }
   
-  function resetStripeElements() {
-    if (cardElement) {
-      cardElement.destroy();
-      cardElement = null;
-    }
-    $stripeContainer.empty();
-  }
-  
   // Calculation function to update subtotal and UI state
   function calc() {
     let sum = 0;
@@ -75,8 +67,6 @@ $(function(){
     } else {
       $paymentSection.hide();
     }
-    
-    resetStripeElements();
   }
   
   // Initialize the page
@@ -147,7 +137,6 @@ $(function(){
                   .attr('aria-busy', 'true')
                   .text('Processing...');
     $errorMessage.text('');
-    $stripeContainer.hide();
     
     // Prepare data
     let data = $form.serialize();
@@ -251,8 +240,6 @@ $(function(){
     console.error('Stripe Error:', err);
     $errorMessage.text('An error occurred with Stripe. Please try selecting items again or choose another payment method.');
     resetConfirmButton();
-    $stripeContainer.hide().empty();
-    resetStripeElements();
   }
   
   // Initialize the page
