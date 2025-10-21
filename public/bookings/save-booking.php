@@ -93,27 +93,7 @@ foreach ($itemIds as $iid) {
     }
 }
 
-// Update booking with dietary info and potentially the link to newly booked items
-// Linking directly might be redundant if Airtable rollup handles it, but can be explicit:
-$updateData = [
-    'Dietary Requirements' => $diet,
-    'Booked Items' => $newBookedItemIds // Only if direct linking is desired/needed
-];
-
-// Only set Payment Method if items were selected (total might be > 0)
-if (!empty($itemIds)) {
-    $updateData['Payment Method'] = $payMethod;
-} else {
-    // If no items selected, clear payment method? Or leave as is?
-    // Let's clear it for consistency if total becomes 0.
-    //  $updateData['Payment Method'] = 'Not Applicable'; // Or appropriate empty value for Airtable field type
-}
-
-error_log("Updating booking $bookingId with data: " . print_r($updateData, true));
-
-$bookingRepo->update($bookingId, $updateData);
-
-
+// Calculate total first to determine if payment is needed
 $total = 0.0;
 // Fetch the newly created booked items to calculate the total
 if (!empty($newBookedItemIds)) {
@@ -142,6 +122,22 @@ $bookingRepo->update($bookingId, [
 
 // Use the discounted total for payment processing
 $total = $totalAfterDiscount;
+
+// Set Payment Method based on whether payment is actually required (total > 0)
+$updateData = [
+    'Dietary Requirements' => $diet,
+    'Booked Items' => $newBookedItemIds
+];
+
+if ($total > 0) {
+    $updateData['Payment Method'] = $payMethod;
+} else {
+    $updateData['Payment Method'] = null;
+}
+
+error_log("Updating booking $bookingId with data: " . print_r($updateData, true));
+
+$bookingRepo->update($bookingId, $updateData);
 
 // Validate payment method if total > 0
 if ($total > 0 && empty($payMethod)) {
