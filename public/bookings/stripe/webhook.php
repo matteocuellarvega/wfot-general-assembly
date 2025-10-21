@@ -150,29 +150,19 @@ function generateAndSendReceipt($bookingId) {
         return false;
     }
     
-    // Get registration to obtain meeting ID
-    $registrationId = $booking['fields']['Registration'][0] ?? null;
-    if (!$registrationId) {
-        error_log("No registration found for booking $bookingId");
-        return false;
-    }
-    
-    $regRepo = new WFOT\Repository\RegistrationRepository();
-    $registration = $regRepo->find($registrationId);
-    if (!$registration) {
-        error_log("Failed to find registration $registrationId for booking $bookingId");
-        return false;
-    }
-    
-    $meetingId = $registration['fields']['Meeting ID'] ?? null;
+    // Get meeting ID directly from booking (it's a Lookup field, so it's an array)
+    $meetingId = $booking['fields']['Meeting ID'][0] ?? null;
     if (!$meetingId) {
-        error_log("No meeting ID found in registration $registrationId for booking $bookingId");
+        error_log("No meeting ID found in booking $bookingId");
         return false;
     }
     
     // Send email confirmation (no PDF attachment needed - user can download from confirmation page)
+    // Handle Lookup fields that return arrays
     $recipientEmail = $booking['fields']['Email'][0] ?? null;
-    $recipientName = $booking['fields']['First Name'] ?? '';
+    $recipientFName = $booking['fields']['First Name'][0] ?? '';
+    $recipientLName = $booking['fields']['Last Name'][0] ?? '';
+    $recipientName = trim($recipientFName . ' ' . $recipientLName);
     
     if ($recipientEmail) {
         // Generate confirmation URL for the email
