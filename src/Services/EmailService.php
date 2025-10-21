@@ -11,9 +11,9 @@ class EmailService
         }
     }
 
-    public static function sendConfirmationWithoutPdf(string $to, string $name, string $confirmationUrl, string $meetingId): bool
+    public static function sendConfirmation(string $to, string $name, string $confirmationUrl, string $meetingId): bool
     {
-        self::logDebug("sendConfirmationWithoutPdf called for to: $to, name: $name, confirmationUrl: $confirmationUrl, meetingId: $meetingId");
+        self::logDebug("sendConfirmation called for to: $to, name: $name, confirmationUrl: $confirmationUrl, meetingId: $meetingId");
         $mail = new PHPMailer(true);
         $mail->CharSet = "UTF-8";
         $mail->isSMTP();
@@ -31,12 +31,12 @@ class EmailService
         
         // Create email body with confirmation link
         $mail->isHTML(true);
-        $mail->Body = self::generateConfirmationEmailBodyWithoutPdf($name, $meetingId, $confirmationUrl);
-        $mail->AltBody = strip_tags(str_replace('<br>', "\n", self::generateConfirmationEmailBodyWithoutPdf($name, $meetingId, $confirmationUrl)));
+        $mail->Body = self::generateConfirmationEmailBody($name, $meetingId, $confirmationUrl);
+        $mail->AltBody = strip_tags(str_replace('<br>', "\n", self::generateConfirmationEmailBody($name, $meetingId, $confirmationUrl)));
         
         self::logDebug("PHPMailer configured, attempting to send confirmation.");
         $result = $mail->send();
-        self::logDebug("sendConfirmationWithoutPdf result: " . ($result ? "Success" : "Failure"));
+        self::logDebug("sendConfirmation result: " . ($result ? "Success" : "Failure"));
         return $result;
     }
     
@@ -48,7 +48,7 @@ class EmailService
      * @param string $confirmationUrl URL to download the PDF confirmation
      * @return string Email HTML body
      */
-    private static function generateConfirmationEmailBodyWithoutPdf(string $name, string $meetingId, string $confirmationUrl): string
+    private static function generateConfirmationEmailBody(string $name, string $meetingId, string $confirmationUrl): string
     {
         return '
         <img src="' . rtrim(env('APP_URL'), '/') . '/assets/img/logo-'. strtolower($meetingId) .'.png" alt="WFOT Logo" style="max-width: 200px;">
