@@ -103,9 +103,11 @@ function handleCheckoutSessionCompleted($data, $bookingRepo) {
     }
     
     // Update booking
+    $paymentIntentId = $data->payment_intent ?? null;
+
     $bookingRepo->update($bookingId, [
         'Payment Status' => 'Paid',
-        'Payment Reference' => $sessionId,
+        'Payment Reference' => $paymentIntentId ?: $sessionId,
         'Status' => 'Complete',
         'Payment Date' => date('Y-m-d'),
         'Payment Amount' => $data->amount_total / 100,

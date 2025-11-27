@@ -53,17 +53,17 @@ try {
         exit;
     }
 
-    $chargeId = $intent->latest_charge ?? null;
+    $paymentIntentId = $intent->id;
     $payerEmail = $intent->receipt_email ?? null;
     $paymentAmount = $intent->amount / 100; // Convert from cents
 
     // Log successful confirmation
-    error_log("Successfully confirmed payment: $chargeId for booking $bookingId");
+    error_log("Successfully confirmed payment: $paymentIntentId for booking $bookingId");
 
     // Update booking status to Complete and record payment details
     $bookingRepo->update($bookingId, [
         'Payment Status' => 'Paid',
-        'Payment Reference' => $chargeId,
+        'Payment Reference' => $paymentIntentId,
         'Status' => 'Complete',
         'Payment Date' => date('Y-m-d H:i:s'),
         'Payer Email' => $payerEmail,
