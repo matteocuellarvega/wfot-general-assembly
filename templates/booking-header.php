@@ -10,4 +10,5 @@
 <title>WFOT General Assembly Meeting Booking</title>
 </head>
 <body class="container">
-<img src="/assets/img/logo-<?php echo strtolower($meetingId); ?>.svg" alt="WFOT Logo" id="logo">
+<?php $logoSuffix = (isset($meetingId) && !empty($meetingId)) ? strtolower($meetingId) : 'current'; ?>
+<img src="/assets/img/logo-<?php echo $logoSuffix; ?>.svg" alt="WFOT Logo" id="logo">
