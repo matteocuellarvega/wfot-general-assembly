@@ -136,9 +136,12 @@ if (
         $userEmail = $reg['fields']['Email'] ?? null;
         $meetingId = $reg['fields']['Meeting ID'] ?? null;
         $userName = ($reg['fields']['First Name'] ?? '') . ' ' . ($reg['fields']['Last Name'] ?? '');
-        if ($userEmail && $meetingId) {
-            EmailService::sendConfirmation($userEmail, $userName, $confirmationPath, $meetingId);
-        } elseif ($userEmail) {
+        $paymentMethod = $booking['fields']['Payment Method'] ?? '';
+        $shouldEmailNow = $paymentMethod !== 'Stripe';
+
+        if ($shouldEmailNow && $userEmail && $meetingId) {
+            EmailService::sendConfirmation($userEmail, $userName, $confirmationUrl, $meetingId);
+        } elseif ($shouldEmailNow && $userEmail) {
             error_log("Cannot send confirmation email for booking {$booking['id']} - missing meeting ID");
         }
     }

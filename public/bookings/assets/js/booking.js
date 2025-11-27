@@ -11,6 +11,7 @@ $(function(){
   // State variables
   let currentTotal = 0;
   let formChanged = false;
+  let suppressUnloadWarning = false;
   
   // Configuration
   const config = {
@@ -50,6 +51,10 @@ $(function(){
 
   function clearFormChangedFlag() {
     formChanged = false;
+  }
+
+  function allowNavigationWithoutWarning() {
+    suppressUnloadWarning = true;
   }
   
   // Calculation function to update subtotal and UI state
@@ -103,9 +108,10 @@ $(function(){
     });
     
     // Warn before leaving with unsaved changes
-    $(window).on('beforeunload', function() {
-      if (formChanged) {
-        return 'You have unsaved changes. Are you sure you want to leave?';
+    $(window).on('beforeunload', function(e) {
+      if (formChanged && !suppressUnloadWarning) {
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        return e.returnValue;
       }
     });
     
@@ -221,6 +227,7 @@ $(function(){
   
   function handleCashPayment() {
     clearFormChangedFlag();
+    allowNavigationWithoutWarning();
     
     if (isEditMode) {
       const cleanUrl = getUrlWithoutEditParam();
@@ -233,6 +240,8 @@ $(function(){
   
   function handleStripePayment(json) {
     // Redirect to Stripe Checkout
+    clearFormChangedFlag();
+    allowNavigationWithoutWarning();
     window.location.href = json.checkout_url;
   }
   

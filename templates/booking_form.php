@@ -41,7 +41,7 @@ $selectedItems = $selectedItems ?? [];
         <label for="paymethod">Payment method</label>
         <select id="paymethod" name="paymethod">
           <option value="">Please choose</option>
-          <option value="Stripe" <?= ($selectedPayMethod === 'Stripe') ? 'selected' : '' ?>>Stripe</option>
+          <option value="Stripe" <?= ($selectedPayMethod === 'Stripe') ? 'selected' : '' ?>>Credit/Debit Card</option>
           <option value="Cash" <?= ($selectedPayMethod === 'Cash') ? 'selected' : '' ?>>Cash (pay on arrival)</option>
         </select>
     </div>
