@@ -11,6 +11,7 @@ use WFOT\Services\AirtableService;
 use WFOT\Services\QrCodeService;
 use WFOT\Services\PdfService;
 use WFOT\Services\EmailService;
+use WFOT\Services\ConfirmationCacheService;
 
 
 $bookingId = isset($_GET['booking'])
@@ -125,6 +126,8 @@ if (
 
     if (!file_exists($confirmationPath) || $regenerate) {
         PdfService::generateConfirmation($html, $confirmationPath);
+        $lastModified = ConfirmationCacheService::extractLastModified($booking);
+        ConfirmationCacheService::storeMetadata($booking['id'], $lastModified);
 
         $confirmationToken = TokenService::generate($booking['id']);
         $confirmationUrl = rtrim(env('APP_URL'), '/') . '/bookings/confirmation.php?booking=' . $booking['id'] . '&tok=' . $confirmationToken;
