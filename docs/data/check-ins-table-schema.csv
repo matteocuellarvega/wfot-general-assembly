@@ -1,0 +1,8 @@
+Field Name,Field ID,Type,Formula,Primary Field,Description,API Notes,Linked Table,Choices,Looked Up From,Rolled Up From
+Name,fldBB6VG989K2KJXf,Single line text,"CONCATENATE({column_value_fld5qAZvfpAIipOUe},"" "",{column_value_fld2HgUMdUZVaqfRc},"" - "",column_value_fldoihmv2vQzDAK4R)",true,,,,,,
+Session,fldoihmv2vQzDAK4R,Single line text,,false,,,,,,
+Check In Date,fldkhTkH2boFniuuX,Date,,false,,,,,,
+Registrations,fldlAS6NEyECKBCzk,Linked record (foreign key),,false,,,tblxFb5zXR3ZKtaw9,,,
+First Name,fld5qAZvfpAIipOUe,Single line text,,false,,,,,fldZ9k6mSvKngXy3S,
+Last Name,fld2HgUMdUZVaqfRc,Single line text,,false,,,,,fldfO5MTnrNTS25Qh,
+Check In By,fldLoc976cyFcHRdl,Single line text,,false,,,,,,

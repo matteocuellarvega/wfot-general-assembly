@@ -1,0 +1,8 @@
+Field Name,Field ID,Type,Formula,Primary Field,Description,API Notes,Linked Table,Choices,Looked Up From,Rolled Up From
+Item,fldP1MtqxiDYgGXDZ,Single line text,,Yes,,String value,,,,
+Booked Item ID,fld5jslFgGiDHSEkq,Formula,RECORD_ID(),No,,"Read-only, computed field",,,,
+Booking,fldR4XL4TOjWSJeG1,Linked record (foreign key),,No,,Array of record IDs from linked table,Bookings - tblETcytPcj835rb0,,,
+Item Total,fldwxhnJz5vsQCzMn,Number,,No,,Numeric value in currency format ($),,,,
+Redeemed,fldXTNCm6eYuJOAXA,Checkbox,,No,,Boolean value (true/false),,,,
+Type,fld6f8WjqIpo3MQuB,Single line text,,No,,String value,,,,
+Bookable Item ID,fldaEcURaSpwtHY2F,Single line text,,No,,String value,,,,

@@ -9,6 +9,7 @@
 - `src/Services/AirtableService.php` wraps `sleiman/airtable-php` and is the only place that should talk to Airtable; repositories (`src/Repository/*.php`) pin table IDs (`Bookings` tblETcytPcj835rb0, `Registrations` tblxFb5zXR3ZKtaw9, `Bookable Items` tblT0M8sYqgHq6Tsa, `Booked Items` tbluEJs6UHGhLbvJX, `Members` tblDDpToTMCxgrHBw).
 - API keys and behavior toggles arrive via `.env`; required keys include `AIRTABLE_*`, `APP_URL`, `TOKEN_SALT`, `SMTP_*`, `STRIPE_*`, `PAYPAL_*`, `API_BEARER_TOKEN`, and `DEBUG`.
 - Keep env lookups behind the global `env()` helper so CLI scripts and web front-ends behave consistently.
+- Airtable schema snapshots live under `docs/data/*.csv` (`bookings-table-schema.csv`, `booked_items-table-schema.csv`, `registrations-table-schema.csv`, `checkins-table-schema.csv`); use them when you need field IDs like `fldAMKxptKGU7ZYjj` (Receipt Timestamp) without opening Airtable. `docs/airtable-context.md` explains when the exports were last refreshed.
 
 ## Booking Flow (`public/bookings`)
 - `index.php` accepts either `?registration=...&tok=...` (token required) or `?booking=...`; it uses `RegistrationRepository`, `BookingRepository`, and `ItemRepository` to hydrate state and decide between edit form (`templates/booking_form.php`) or confirmation PDF/HTML (`templates/booking_complete.php`).
