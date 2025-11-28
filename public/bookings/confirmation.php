@@ -68,8 +68,10 @@ function regenerateConfirmation(array $booking, string $bookingId, string $confi
             $items[] = $record;
         }
     }
-
-    $qrCodeDataUri = QrCodeService::generateDataUri($bookingId);
+    $qrCodePayload = json_encode([
+        'bookingId' => $bookingId
+    ]);
+    $qrCodeDataUri = QrCodeService::generateDataUri($qrCodePayload);
 
     ob_start();
     include dirname(__DIR__, 2) . '/templates/booking-header.php';

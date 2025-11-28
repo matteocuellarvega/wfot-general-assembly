@@ -13,7 +13,7 @@ header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['error' => 'POST method required.']);
+    echo json_encode(['error' => 'Method Not Allowed.']);
     exit;
 }
 
@@ -93,7 +93,7 @@ function buildResponse(array $registration, ?array $booking, AirtableService $ai
         'Last Name' => getField($registration, 'Last Name'),
         'Organisation' => getField($registration, $organisationField),
         'Role' => $role,
-        'Photo' => getAttachmentUrl($registration, 'Photo'),
+        'Photo' => getAttachmentUrl($registration, 'Photo', 'large'),
         'About You' => getField($registration, 'About You'),
         'Membership Type' => getField($registration, 'Membership Type'),
         'First Time as Delegate' => getField($registration, 'First Time as Delegate'),
@@ -101,7 +101,7 @@ function buildResponse(array $registration, ?array $booking, AirtableService $ai
         'Mentoring' => getField($registration, 'Mentoring'),
         'Previous Attendance' => getField($registration, 'Previous Attendance'),
         'First Time Attendee' => getField($registration, 'First Time Attendee'),
-        'Access Requirements' => getField($registration, 'Access Requirements'),
+        'Access Requirements' => getField($registration, 'Access Requirements (Details)'),
         'Booking' => buildBookingBlock($booking, $airtable),
         'Check-Ins' => fetchCheckins($registration['id'], $airtable),
     ];
@@ -187,19 +187,25 @@ function getField(array $record, string $field, $default = '')
     return $value;
 }
 
-function getAttachmentUrl(array $record, string $field): string
+function getAttachmentUrl(array $record, string $field, string $preferredSize = 'large'): string
 {
     if (!isset($record['fields'][$field]) || !is_array($record['fields'][$field])) {
         return '';
     }
-    $url = extractAttachmentUrl($record['fields'][$field]);
+    $url = extractAttachmentUrl($record['fields'][$field], $preferredSize);
     return $url ?? '';
 }
 
-function extractAttachmentUrl(array $attachments): ?string
+function extractAttachmentUrl(array $attachments, ?string $preferredSize = null): ?string
 {
     foreach ($attachments as $attachment) {
-        if (is_array($attachment) && isset($attachment['url'])) {
+        if (!is_array($attachment)) {
+            continue;
+        }
+        if ($preferredSize && isset($attachment['thumbnails'][$preferredSize]['url'])) {
+            return $attachment['thumbnails'][$preferredSize]['url'];
+        }
+        if (isset($attachment['url'])) {
             return $attachment['url'];
         }
     }

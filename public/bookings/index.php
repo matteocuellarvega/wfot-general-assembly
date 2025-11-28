@@ -110,7 +110,10 @@ if (
     }
     $items = $itemRecords;
 
-    $qrCodeDataUri = QrCodeService::generateDataUri($booking['id']);
+    $qrCodePayload = json_encode([
+        'bookingId' => $booking['id']
+    ]);
+    $qrCodeDataUri = QrCodeService::generateDataUri($qrCodePayload);
 
     ob_start();
     include dirname(__DIR__, 2) . '/templates/booking-header.php';
