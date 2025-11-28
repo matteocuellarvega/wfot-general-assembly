@@ -32,54 +32,181 @@ if ($providedToken !== $expectedToken) {
     exit;
 }
 
-$payload = json_decode(file_get_contents('php://input'), true);
+$payload = json_decode(file_get_contents('php://input'), true) ?? [];
+$action = $payload['action'] ?? 'getDetails';
 $bookingId = sanitizeRecordId($payload['bookingId'] ?? null);
 $registrationId = sanitizeRecordId($payload['registrationId'] ?? null);
-
-if (!$bookingId && !$registrationId) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Provide either bookingId or registrationId.']);
-    exit;
-}
 
 $bookingRepo = new BookingRepository();
 $regRepo = new RegistrationRepository();
 $airtable = new AirtableService();
-$booking = null;
 
-if ($bookingId) {
+switch ($action) {
+    case 'getDetails':
+        handleGetDetails($bookingId, $registrationId, $bookingRepo, $regRepo, $airtable);
+        break;
+    case 'checkIn':
+        handleCheckIn($payload, $regRepo, $airtable);
+        break;
+    case 'redeemItem':
+        handleRedeemItem($payload, $bookingRepo, $regRepo, $airtable);
+        break;
+    default:
+        http_response_code(400);
+        echo json_encode(['error' => 'Unknown action.']);
+        exit;
+}
+
+exit;
+
+function handleGetDetails(?string $bookingId, ?string $registrationId, BookingRepository $bookingRepo, RegistrationRepository $regRepo, AirtableService $airtable): void
+{
+    if (!$bookingId && !$registrationId) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Provide either bookingId or registrationId.']);
+        exit;
+    }
+
+    $booking = null;
+
+    if ($bookingId) {
+        $booking = $bookingRepo->find($bookingId);
+        if (!$booking) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Booking not found.']);
+            exit;
+        }
+        $registrationId = $booking['fields']['Registration'][0] ?? null;
+        if (!$registrationId) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Booking has no linked registration.']);
+            exit;
+        }
+    }
+
+    $registration = $registrationId ? $regRepo->find($registrationId) : null;
+    if (!$registration) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Registration not found.']);
+        exit;
+    }
+
+    if (!$booking) {
+        $linkedBookingId = $registration['fields']['Bookings'][0] ?? null;
+        if ($linkedBookingId) {
+            $booking = $bookingRepo->find($linkedBookingId);
+        }
+    }
+
+    $response = buildResponse($registration, $booking, $airtable);
+    echo json_encode($response);
+}
+
+function handleCheckIn(array $payload, RegistrationRepository $regRepo, AirtableService $airtable): void
+{
+    $registrationId = sanitizeRecordId($payload['registrationId'] ?? null);
+    $session = trim((string) ($payload['session'] ?? ''));
+    $user = trim((string) ($payload['user'] ?? ''));
+
+    if (!$registrationId || $session === '' || $user === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'registrationId, session, and user are required.']);
+        exit;
+    }
+
+    $registration = $regRepo->find($registrationId);
+    if (!$registration) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Registration not found.']);
+        exit;
+    }
+
+    $fields = [
+        'Session' => $session,
+        'Check In Date' => gmdate('c'),
+        'Registrations' => [$registrationId],
+        'Check In By' => $user,
+    ];
+
+    try {
+        $record = $airtable->create(CHECKINS_TABLE, $fields);
+        echo json_encode(['status' => 'ok', 'check_in_id' => $record['id'] ?? null]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to record check-in.']);
+    }
+}
+
+function handleRedeemItem(array $payload, BookingRepository $bookingRepo, RegistrationRepository $regRepo, AirtableService $airtable): void
+{
+    $registrationId = sanitizeRecordId($payload['registrationId'] ?? null);
+    $bookingId = sanitizeRecordId($payload['bookingId'] ?? null);
+    $bookableItemId = sanitizeRecordId($payload['bookableItemId'] ?? null);
+    $user = trim((string) ($payload['user'] ?? ''));
+
+    if (!$bookableItemId || $user === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'bookableItemId and user are required.']);
+        exit;
+    }
+
+    if (!$bookingId && !$registrationId) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Provide bookingId or registrationId.']);
+        exit;
+    }
+
+    if (!$bookingId && $registrationId) {
+        $registration = $regRepo->find($registrationId);
+        if (!$registration) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Registration not found.']);
+            exit;
+        }
+        $bookingId = $registration['fields']['Bookings'][0] ?? null;
+        if (!$bookingId) {
+            http_response_code(404);
+            echo json_encode(['error' => 'No booking linked to registration.']);
+            exit;
+        }
+    }
+
     $booking = $bookingRepo->find($bookingId);
     if (!$booking) {
         http_response_code(404);
         echo json_encode(['error' => 'Booking not found.']);
         exit;
     }
-    $registrationId = $booking['fields']['Registration'][0] ?? null;
-    if (!$registrationId) {
+
+    $filter = sprintf(
+        "AND({Booking}='%s',{Bookable Item ID}='%s')",
+        addslashes($bookingId),
+        addslashes($bookableItemId)
+    );
+    $items = $airtable->all(BOOKED_ITEMS_TABLE, [
+        'filterByFormula' => $filter,
+        'maxRecords' => 1,
+    ]);
+
+    if (empty($items)) {
         http_response_code(404);
-        echo json_encode(['error' => 'Booking has no linked registration.']);
+        echo json_encode(['error' => 'Booked item not found.']);
         exit;
     }
-}
 
-$registration = $registrationId ? $regRepo->find($registrationId) : null;
-if (!$registration) {
-    http_response_code(404);
-    echo json_encode(['error' => 'Registration not found.']);
-    exit;
-}
+    $item = $items[0];
 
-if (!$booking) {
-    $linkedBookingId = $registration['fields']['Bookings'][0] ?? null;
-    if ($linkedBookingId) {
-        $booking = $bookingRepo->find($linkedBookingId);
+    try {
+        $airtable->update(BOOKED_ITEMS_TABLE, $item['id'], [
+            'Redeemed' => true,
+            'Redeemed By' => $user,
+        ]);
+        echo json_encode(['status' => 'ok', 'booked_item_id' => $item['id']]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to redeem item.']);
     }
 }
-
-$response = buildResponse($registration, $booking, $airtable);
-
-echo json_encode($response);
-exit;
 
 function buildResponse(array $registration, ?array $booking, AirtableService $airtable): array
 {
