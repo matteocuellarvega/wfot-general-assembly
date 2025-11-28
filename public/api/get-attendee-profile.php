@@ -8,7 +8,6 @@ use WFOT\Services\AirtableService;
 
 const BOOKED_ITEMS_TABLE = 'tbluEJs6UHGhLbvJX';
 const CHECKINS_TABLE = 'tbluoEBBrpvvJnWak';
-const MEMBERS_TABLE = 'tblDDpToTMCxgrHBw';
 const MEMBER_ORGS_TABLE = 'tbli6ExwLjMLb3Hca';
 
 header('Content-Type: application/json');
@@ -87,7 +86,7 @@ function buildResponse(array $registration, ?array $booking, AirtableService $ai
     $role = trim((string) ($registration['fields']['Role'] ?? ''));
     $isObserver = strcasecmp($role, 'Observer') === 0;
     $organisation = resolveOrganisation($registration, $isObserver, $airtable);
-    $photoUrl = resolvePhotoUrl($registration, $airtable);
+    $photoUrl = getAttachmentUrl($registration, 'Photo', 'large');
 
     return [
         'ID' => getField($registration, 'ID', $registration['id']),
@@ -104,7 +103,11 @@ function buildResponse(array $registration, ?array $booking, AirtableService $ai
         'Mentoring' => getField($registration, 'Mentoring'),
         'Previous Attendance' => getField($registration, 'Previous Attendance'),
         'First Time Attendee' => getField($registration, 'First Time Attendee'),
-        'Access Requirements' => getField($registration, 'Access Requirements (Details)'),
+        'Access Requirements' => getField(
+            $registration,
+            'Access Requirements (Details)',
+            getField($registration, 'Access Requirements')
+        ),
         'Booking' => buildBookingBlock($booking, $airtable),
         'Check-Ins' => fetchCheckins($registration['id'], $airtable),
     ];
@@ -120,6 +123,7 @@ function buildBookingBlock(?array $booking, AirtableService $airtable): ?array
         'Booking ID' => $booking['id'],
         'Created' => getField($booking, 'Created'),
         'Status' => getField($booking, 'Status'),
+        'Payment Method' => getField($booking, 'Payment Method'),
         'Payment Amount' => getField($booking, 'Payment Amount'),
         'Payment Status' => getField($booking, 'Payment Status'),
         'Payment Date' => getField($booking, 'Payment Date'),
@@ -202,11 +206,26 @@ function getAttachmentUrl(array $record, string $field, string $preferredSize = 
 function extractAttachmentUrl(array $attachments, ?string $preferredSize = null): ?string
 {
     foreach ($attachments as $attachment) {
+        if (is_object($attachment)) {
+            $attachment = (array) $attachment;
+        }
         if (!is_array($attachment)) {
             continue;
         }
-        if ($preferredSize && isset($attachment['thumbnails'][$preferredSize]['url'])) {
-            return $attachment['thumbnails'][$preferredSize]['url'];
+        if ($preferredSize && isset($attachment['thumbnails'])) {
+            $thumbnails = $attachment['thumbnails'];
+            if (is_object($thumbnails)) {
+                $thumbnails = (array) $thumbnails;
+            }
+            if (is_array($thumbnails) && isset($thumbnails[$preferredSize])) {
+                $thumb = $thumbnails[$preferredSize];
+                if (is_object($thumb)) {
+                    $thumb = (array) $thumb;
+                }
+                if (is_array($thumb) && isset($thumb['url'])) {
+                    return $thumb['url'];
+                }
+            }
         }
         if (isset($attachment['url'])) {
             return $attachment['url'];
@@ -222,28 +241,6 @@ function sanitizeRecordId(?string $value): ?string
     }
     $clean = preg_replace('/[^a-zA-Z0-9]/', '', $value);
     return $clean ?: null;
-}
-
-function resolvePhotoUrl(array $registration, AirtableService $airtable): string
-{
-    $photoUrl = getAttachmentUrl($registration, 'Photo', 'large');
-    if ($photoUrl !== '') {
-        return $photoUrl;
-    }
-
-    $memberIds = $registration['fields']['Members'] ?? [];
-    if (is_array($memberIds) && !empty($memberIds)) {
-        $memberId = $memberIds[0];
-        $member = $airtable->find(MEMBERS_TABLE, $memberId);
-        if ($member) {
-            $memberPhoto = getAttachmentUrl($member, 'Photo', 'large');
-            if ($memberPhoto !== '') {
-                return $memberPhoto;
-            }
-        }
-    }
-
-    return '';
 }
 
 function resolveOrganisation(array $registration, bool $isObserver, AirtableService $airtable): string
