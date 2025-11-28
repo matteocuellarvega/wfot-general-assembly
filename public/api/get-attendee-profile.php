@@ -8,6 +8,8 @@ use WFOT\Services\AirtableService;
 
 const BOOKED_ITEMS_TABLE = 'tbluEJs6UHGhLbvJX';
 const CHECKINS_TABLE = 'tbluoEBBrpvvJnWak';
+const MEMBERS_TABLE = 'tblDDpToTMCxgrHBw';
+const MEMBER_ORGS_TABLE = 'tbli6ExwLjMLb3Hca';
 
 header('Content-Type: application/json');
 
@@ -84,16 +86,17 @@ function buildResponse(array $registration, ?array $booking, AirtableService $ai
 {
     $role = trim((string) ($registration['fields']['Role'] ?? ''));
     $isObserver = strcasecmp($role, 'Observer') === 0;
-    $organisationField = $isObserver ? 'Observer Member Organisation' : 'Organisation';
+    $organisation = resolveOrganisation($registration, $isObserver, $airtable);
+    $photoUrl = resolvePhotoUrl($registration, $airtable);
 
     return [
         'ID' => getField($registration, 'ID', $registration['id']),
         'Title' => getField($registration, 'Title'),
         'First Name' => getField($registration, 'First Name'),
         'Last Name' => getField($registration, 'Last Name'),
-        'Organisation' => getField($registration, $organisationField),
+        'Organisation' => $organisation,
         'Role' => $role,
-        'Photo' => getAttachmentUrl($registration, 'Photo', 'large'),
+        'Photo' => $photoUrl,
         'About You' => getField($registration, 'About You'),
         'Membership Type' => getField($registration, 'Membership Type'),
         'First Time as Delegate' => getField($registration, 'First Time as Delegate'),
@@ -149,7 +152,7 @@ function fetchBookedItems(array $booking, AirtableService $airtable): array
 function fetchCheckins(string $registrationId, AirtableService $airtable): array
 {
     $records = $airtable->all(CHECKINS_TABLE, [
-        'filterByFormula' => sprintf("ARRAYJOIN({Registration})='%s'", $registrationId),
+        'filterByFormula' => sprintf("ARRAYJOIN({Registrations})='%s'", addslashes($registrationId)),
     ]);
 
     $checkins = [];
@@ -219,4 +222,47 @@ function sanitizeRecordId(?string $value): ?string
     }
     $clean = preg_replace('/[^a-zA-Z0-9]/', '', $value);
     return $clean ?: null;
+}
+
+function resolvePhotoUrl(array $registration, AirtableService $airtable): string
+{
+    $photoUrl = getAttachmentUrl($registration, 'Photo', 'large');
+    if ($photoUrl !== '') {
+        return $photoUrl;
+    }
+
+    $memberIds = $registration['fields']['Members'] ?? [];
+    if (is_array($memberIds) && !empty($memberIds)) {
+        $memberId = $memberIds[0];
+        $member = $airtable->find(MEMBERS_TABLE, $memberId);
+        if ($member) {
+            $memberPhoto = getAttachmentUrl($member, 'Photo', 'large');
+            if ($memberPhoto !== '') {
+                return $memberPhoto;
+            }
+        }
+    }
+
+    return '';
+}
+
+function resolveOrganisation(array $registration, bool $isObserver, AirtableService $airtable): string
+{
+    if ($isObserver) {
+        $orgIds = $registration['fields']['Observer Member Organisation'] ?? [];
+        if (is_array($orgIds) && !empty($orgIds)) {
+            $names = [];
+            foreach ($orgIds as $orgId) {
+                $orgRecord = $airtable->find(MEMBER_ORGS_TABLE, $orgId);
+                if ($orgRecord && !empty($orgRecord['fields']['Name'])) {
+                    $names[] = $orgRecord['fields']['Name'];
+                }
+            }
+            if (!empty($names)) {
+                return implode(', ', $names);
+            }
+        }
+    }
+
+    return getField($registration, 'Organisation');
 }
