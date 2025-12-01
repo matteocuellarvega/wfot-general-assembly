@@ -321,6 +321,8 @@ function fetchCheckins(string $registrationId, AirtableService $airtable): array
     foreach ($records as $record) {
         $checkins[] = [
             'Session' => getField($record, 'Session'),
+            'First Name' => getField($record, 'First Name'),
+            'Last Name' => getField($record, 'Last Name'),
             'Check In Date' => getField($record, 'Check In Date'),
             'Check In By' => getField($record, 'Check In By'),
         ];
