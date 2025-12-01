@@ -284,6 +284,7 @@ function buildBookingBlock(?array $booking, AirtableService $airtable): ?array
         'Payment Amount' => getField($booking, 'Payment Amount'),
         'Payment Status' => getField($booking, 'Payment Status'),
         'Payment Date' => getField($booking, 'Payment Date'),
+        'Confirmation' => getField($booking, 'Confirmation'),
         'Dietary Requirements' => getField($booking, 'Dietary Requirements'),
         'Items' => fetchBookedItems($booking, $airtable),
     ];
