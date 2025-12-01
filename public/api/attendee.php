@@ -9,10 +9,13 @@ use WFOT\Services\AirtableService;
 const BOOKED_ITEMS_TABLE = 'tbluEJs6UHGhLbvJX';
 const CHECKINS_TABLE = 'tbluoEBBrpvvJnWak';
 const MEMBER_ORGS_TABLE = 'tbli6ExwLjMLb3Hca';
+const PING_HEADER = 'HTTP_X_WFOT_PING';
 
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+if (!in_array($method, ['GET', 'POST'], true)) {
     http_response_code(405);
     echo json_encode(['error' => 'Method Not Allowed.']);
     exit;
@@ -29,6 +32,22 @@ $expectedToken = env('API_BEARER_TOKEN');
 if ($providedToken !== $expectedToken) {
     http_response_code(403);
     echo json_encode(['error' => 'Forbidden. Invalid token.']);
+    exit;
+}
+
+if ($method === 'GET') {
+    $pingValue = $_SERVER[PING_HEADER] ?? '';
+    if ($pingValue === '') {
+        http_response_code(400);
+        echo json_encode(['error' => 'Missing X-WFOT-Ping header.']);
+        exit;
+    }
+
+    echo json_encode([
+        'status' => 'ok',
+        'message' => 'Attendee API reachable',
+        'ping' => $pingValue,
+    ]);
     exit;
 }
 

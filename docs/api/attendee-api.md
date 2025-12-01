@@ -7,6 +7,7 @@ Private JSON API consumed by the Delegate Hub and other admin tools. All request
 - Send the shared secret via `Authorization: Bearer <token>`.
 - Requests missing the header return `401`; invalid tokens return `403`.
 - All payloads must be valid JSON with `Content-Type: application/json`.
+- Health checks may use `GET /api/attendee.php` with the same Authorization header plus `X-WFOT-Ping: <value>`; the API replies with `{"status":"ok","message":"Attendee API reachable","ping":"<value>"}`.
 
 ```bash
 curl -X POST \
