@@ -137,6 +137,7 @@ function handleCheckIn(array $payload, RegistrationRepository $regRepo, Airtable
             'check_in_id' => $record['id'] ?? null,
             'check_in_date' => getField($record, 'Check In Date'),
             'check_in_by' => getField($record, 'Check In By'),
+            'attendee_name' => formatAttendeeName($record),
         ]);
         return;
     }
@@ -150,7 +151,11 @@ function handleCheckIn(array $payload, RegistrationRepository $regRepo, Airtable
 
     try {
         $record = $airtable->create(CHECKINS_TABLE, $fields);
-        echo json_encode(['status' => 'ok', 'check_in_id' => $record['id'] ?? null]);
+        echo json_encode([
+            'status' => 'ok',
+            'check_in_id' => $record['id'] ?? null,
+            'attendee_name' => formatAttendeeName($record),
+        ]);
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to record check-in.']);
@@ -321,14 +326,24 @@ function fetchCheckins(string $registrationId, AirtableService $airtable): array
     foreach ($records as $record) {
         $checkins[] = [
             'Session' => getField($record, 'Session'),
-            'First Name' => getField($record, 'First Name'),
-            'Last Name' => getField($record, 'Last Name'),
             'Check In Date' => getField($record, 'Check In Date'),
             'Check In By' => getField($record, 'Check In By'),
         ];
     }
 
     return $checkins;
+}
+
+function formatAttendeeName(?array $record): string
+{
+    if (!$record) {
+        return '';
+    }
+
+    $first = trim((string) getField($record, 'First Name'));
+    $last = trim((string) getField($record, 'Last Name'));
+
+    return trim($first . ' ' . $last);
 }
 
 function getField(array $record, string $field, $default = '')
