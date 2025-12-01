@@ -10,6 +10,7 @@
 - API keys and behavior toggles arrive via `.env`; required keys include `AIRTABLE_*`, `APP_URL`, `TOKEN_SALT`, `SMTP_*`, `STRIPE_*`, `PAYPAL_*`, `API_BEARER_TOKEN`, and `DEBUG`.
 - Keep env lookups behind the global `env()` helper so CLI scripts and web front-ends behave consistently.
 - Airtable schema snapshots live under `docs/data/*.csv` (`bookings-table-schema.csv`, `booked_items-table-schema.csv`, `registrations-table-schema.csv`, `checkins-table-schema.csv`); use them when you need field IDs like `fldAMKxptKGU7ZYjj` (Receipt Timestamp) without opening Airtable. `docs/airtable-context.md` explains when the exports were last refreshed.
+- Bearer-protected attendee operations (`public/api/attendee.php`) are documented in `docs/api/attendee-api.md`; review that file for payload contracts when extending check-in or redemption logic.
 
 ## Booking Flow (`public/bookings`)
 - `index.php` accepts either `?registration=...&tok=...` (token required) or `?booking=...`; it uses `RegistrationRepository`, `BookingRepository`, and `ItemRepository` to hydrate state and decide between edit form (`templates/booking_form.php`) or confirmation PDF/HTML (`templates/booking_complete.php`).

@@ -121,6 +121,26 @@ function handleCheckIn(array $payload, RegistrationRepository $regRepo, Airtable
         exit;
     }
 
+    $existingCheckins = $airtable->all(CHECKINS_TABLE, [
+        'filterByFormula' => sprintf(
+            "AND({Session}='%s', FIND('%s', ARRAYJOIN({Registrations}))>0)",
+            addslashes($session),
+            addslashes($registrationId)
+        ),
+        'maxRecords' => 1,
+    ]);
+
+    if (!empty($existingCheckins)) {
+        $record = $existingCheckins[0];
+        echo json_encode([
+            'status' => 'already_checked_in',
+            'check_in_id' => $record['id'] ?? null,
+            'check_in_date' => getField($record, 'Check In Date'),
+            'check_in_by' => getField($record, 'Check In By'),
+        ]);
+        return;
+    }
+
     $fields = [
         'Session' => $session,
         'Check In Date' => gmdate('c'),
@@ -195,6 +215,16 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
     }
 
     $item = $items[0];
+    $alreadyRedeemed = !empty($item['fields']['Redeemed']);
+
+    if ($alreadyRedeemed) {
+        echo json_encode([
+            'status' => 'already_redeemed',
+            'booked_item_id' => $item['id'],
+            'redeemed_by' => getField($item, 'Redeemed By'),
+        ]);
+        return;
+    }
 
     try {
         $airtable->update(BOOKED_ITEMS_TABLE, $item['id'], [
