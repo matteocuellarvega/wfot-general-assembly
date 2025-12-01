@@ -138,6 +138,7 @@ function handleCheckIn(array $payload, RegistrationRepository $regRepo, Airtable
             'check_in_date' => getField($record, 'Check In Date'),
             'check_in_by' => getField($record, 'Check In By'),
             'attendee_name' => formatAttendeeName($record),
+            'session' => getField($record, 'Session', $session),
         ]);
         return;
     }
@@ -155,6 +156,7 @@ function handleCheckIn(array $payload, RegistrationRepository $regRepo, Airtable
             'status' => 'ok',
             'check_in_id' => $record['id'] ?? null,
             'attendee_name' => formatAttendeeName($record),
+            'session' => getField($record, 'Session', $session),
         ]);
     } catch (Exception $e) {
         http_response_code(500);
