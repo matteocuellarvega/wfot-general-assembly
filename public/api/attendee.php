@@ -10,6 +10,9 @@ const BOOKED_ITEMS_TABLE = 'tbluEJs6UHGhLbvJX';
 const CHECKINS_TABLE = 'tbluoEBBrpvvJnWak';
 const MEMBER_ORGS_TABLE = 'tbli6ExwLjMLb3Hca';
 const PING_HEADER = 'HTTP_X_WFOT_PING';
+const CHECKIN_DETAIL_FIELDS = ['Session', 'Check In Date', 'Check In By', 'First Name', 'Last Name'];
+const CHECKIN_LIST_FIELDS = ['Session', 'Check In Date', 'Check In By'];
+const BOOKED_ITEM_REDEEM_FIELDS = ['Redeemed', 'Redeemed By'];
 
 header('Content-Type: application/json');
 
@@ -147,6 +150,7 @@ function handleCheckIn(array $payload, RegistrationRepository $regRepo, Airtable
             addslashes($registrationId)
         ),
         'maxRecords' => 1,
+        'fields' => CHECKIN_DETAIL_FIELDS,
     ]);
 
     if (!empty($existingCheckins)) {
@@ -232,6 +236,7 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
     $items = $airtable->all(BOOKED_ITEMS_TABLE, [
         'filterByFormula' => $filter,
         'maxRecords' => 1,
+        'fields' => BOOKED_ITEM_REDEEM_FIELDS,
     ]);
 
     if (empty($items)) {
@@ -341,6 +346,7 @@ function fetchCheckins(string $registrationId, AirtableService $airtable): array
 {
     $records = $airtable->all(CHECKINS_TABLE, [
         'filterByFormula' => sprintf("ARRAYJOIN({Registrations})='%s'", addslashes($registrationId)),
+        'fields' => CHECKIN_LIST_FIELDS,
     ]);
 
     $checkins = [];
