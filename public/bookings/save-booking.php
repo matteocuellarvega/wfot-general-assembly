@@ -179,8 +179,14 @@ if ($total == 0) {
     $stripe = new StripeService();
     $successUrl = env('APP_URL') . '/bookings/index.php?session_id={CHECKOUT_SESSION_ID}&payment=success';
     $cancelUrl = env('APP_URL') . '/bookings/index.php?booking=' . urlencode($bookingId) . '&payment=cancel';
+
+    $customerEmail = $booking['fields']['Email'] ?? null;
+    if (is_array($customerEmail)) {
+        $customerEmail = $customerEmail[0] ?? null;
+    }
+
     try {
-        $session = $stripe->createCheckoutSession($stripeItems, 'USD', $bookingId, $successUrl, $cancelUrl , $booking['fields']['Email'] ?? null);
+        $session = $stripe->createCheckoutSession($stripeItems, 'USD', $bookingId, $successUrl, $cancelUrl , $customerEmail);
         echo json_encode(['payment' => 'Stripe', 'checkout_url' => $session->url, 'booking_id' => $bookingId]);
     } catch (\Exception $e) {
         // Log the error server-side
