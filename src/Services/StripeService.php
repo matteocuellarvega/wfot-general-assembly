@@ -189,6 +189,9 @@ class StripeService
             'customer_email' => $customerEmail ?? null,
             'success_url' => $successUrl ?? env('APP_URL') . '/booking/success?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => $cancelUrl ?? env('APP_URL') . '/booking/cancel',
+            'payment_intent_data' => [
+                'description' => 'General Assembly - ' . $bookingId
+            ]
         ];
 
         try {
