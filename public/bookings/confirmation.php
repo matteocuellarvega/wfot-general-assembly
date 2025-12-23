@@ -12,15 +12,24 @@ use WFOT\Services\TokenService;
 $bookingId = $_GET['booking'] ?? null;
 $token = $_GET['tok'] ?? null;
 
+function renderError($heading, $message, $code = 400) {
+    global $meetingId;
+    http_response_code($code);
+    $errorHeading = $heading;
+    $errorMessage = $message;
+    include dirname(__DIR__, 2) . '/templates/booking-header.php';
+    include dirname(__DIR__, 2) . '/templates/error.php';
+    include dirname(__DIR__, 2) . '/templates/booking-footer.php';
+    exit;
+}
+
 if (!$bookingId || !$token) {
-    http_response_code(400);
-    echo 'Missing parameters.';
+    renderError('Missing parameters', 'Required parameters are missing from this request.', 400);
     exit;
 }
 
 if (!TokenService::check($bookingId, $token)) {
-    http_response_code(403);
-    echo 'Invalid token.';
+    renderError('Access Denied', 'This request was not properly authenticated.', 403);
     exit;
 }
 
@@ -30,9 +39,7 @@ $bookingRepo = new BookingRepository();
 $booking = $bookingRepo->find($bookingId);
 
 if (!$booking) {
-    http_response_code(404);
-    echo 'Booking not found.';
-    exit;
+    renderError('Not Found', 'The booking could not be found.', 404);
 }
 
 $lastModified = ConfirmationCacheService::extractLastModified($booking);
@@ -44,9 +51,7 @@ if (ConfirmationCacheService::requiresRefresh($metadata, $lastModified, $confirm
 }
 
 if (!file_exists($confirmationPath)) {
-    http_response_code(404);
-    echo 'Confirmation not found.';
-    exit;
+    renderError('Confirmation not found', 'The booking confirmation could not be found.', 404);
 }
 
 header('Content-Type: application/pdf');

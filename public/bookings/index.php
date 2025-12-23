@@ -61,18 +61,18 @@ if ($sessionId) {
         }
     } catch (Exception $e) {
         error_log("Error retrieving Stripe session $sessionId: " . $e->getMessage());
-        renderError('Error', 'Invalid session ID', 400);
+        renderError('Invalid session ID', 'The payment session ID could not be found ot is invalid.', 400);
     }
 }
 
 if(!$bookingId && !$registrationId){
-    renderError('Error', 'Missing parameter', 400);
+    renderError('Missing parameter', 'Required parameters are missing from this request.', 400);
 }
 
 if($registrationId){
     $validToken = env('DEBUG') === true || TokenService::check($registrationId, $token ?? '');
     if (!$validToken) {
-        renderError('Access Denied', 'Invalid token', 403);
+        renderError('Access Denied', 'This request was not properly authenticated.', 403);
     }
     $reg = $regRepo->find($registrationId);
     // Added check: if the record appears to be a booking (has Payment Status), then treat it as an invalid registration ID.
@@ -90,7 +90,7 @@ if($registrationId){
 } else {
     $validToken = false; // No token validation for direct booking access
     $booking = $bookingRepo->find($bookingId);
-    if(!$booking){ renderError('Not Found', 'Booking not found', 404); }
+    if(!$booking){ renderError('Not Found', 'The booking could not be found.', 404); }
     $registrationId = $booking['fields']['Registration'][0] ?? null;
     $reg = $regRepo->find($registrationId);
     $meetingId = $reg['fields']['Meeting ID'] ?? null;
