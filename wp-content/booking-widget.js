@@ -33,12 +33,15 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(response => {
          if (!response.ok) {
             // Try to get error message from JSON response body
-            return response.json().then(errData => {
-               throw new Error(`Network response was not ok (${response.status}): ${errData.error || 'Unknown error'}`);
-            }).catch(() => {
-               // Fallback if response body is not JSON or empty
-               throw new Error(`Network response was not ok (${response.status})`);
-            });
+            return response.json().then(
+               errData => {
+                  throw new Error((errData && errData.error) || `Network response was not ok (${response.status})`);
+               },
+               () => {
+                  // Fallback if response body is not JSON or empty
+                  throw new Error(`Network response was not ok (${response.status})`);
+               }
+            );
          }
          return response.json();
       })
