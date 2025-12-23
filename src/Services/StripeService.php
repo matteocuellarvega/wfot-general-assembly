@@ -136,7 +136,7 @@ class StripeService
      * @param string $cancelUrl URL to redirect on cancel
      * @return \Stripe\Checkout\Session
      */
-    public function createCheckoutSession($items, $currency = 'USD', $bookingId = null, $successUrl = null, $cancelUrl = null)
+    public function createCheckoutSession($items, $currency = 'USD', $bookingId = null, $successUrl = null, $cancelUrl = null, $customerEmail = null)
     {
         // Handle backward compatibility - if $items is a float, convert to single item
         if (is_numeric($items)) {
@@ -186,6 +186,7 @@ class StripeService
             'metadata' => [
                 'booking_id' => $bookingId ?? '',
             ],
+            'customer_email' => $customerEmail ?? null,
             'success_url' => $successUrl ?? env('APP_URL') . '/booking/success?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => $cancelUrl ?? env('APP_URL') . '/booking/cancel',
         ];

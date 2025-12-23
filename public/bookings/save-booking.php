@@ -180,7 +180,7 @@ if ($total == 0) {
     $successUrl = env('APP_URL') . '/bookings/index.php?session_id={CHECKOUT_SESSION_ID}&payment=success';
     $cancelUrl = env('APP_URL') . '/bookings/index.php?booking=' . urlencode($bookingId) . '&payment=cancel';
     try {
-        $session = $stripe->createCheckoutSession($stripeItems, 'USD', $bookingId, $successUrl, $cancelUrl);
+        $session = $stripe->createCheckoutSession($stripeItems, 'USD', $bookingId, $successUrl, $cancelUrl , $booking['fields']['Email'] ?? null);
         echo json_encode(['payment' => 'Stripe', 'checkout_url' => $session->url, 'booking_id' => $bookingId]);
     } catch (\Exception $e) {
         // Log the error server-side

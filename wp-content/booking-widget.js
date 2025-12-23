@@ -66,9 +66,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         // Append &edit=true if this is an existing booking
                         if (statusResult.bookingInfo.isEdit) {
                            bookingUrl += (bookingUrl.includes('?') ? '&' : '?') + 'edit=true';
+                           bookingPlaceholder.innerHTML = `<a class="elementor-button elementor-size-lg" href="${bookingUrl}" target="_blank">Edit Booking</a>`;
+                        } else {
+                           bookingPlaceholder.innerHTML = `<a class="elementor-button elementor-size-lg" href="${bookingUrl}" target="_blank">Booking Form</a>`;
                         }
-                        // Replace placeholder with the actual button/link
-                        bookingPlaceholder.innerHTML = `<a class="elementor-button elementor-size-lg" href="${bookingUrl}" target="_blank">Booking Form / Complete Payment</a>`;
                      } else {
                         // Handle error fetching booking link
                         bookingPlaceholder.innerHTML = `<p><i>Could not retrieve booking/payment link. Please contact <a href="mailto:admin@wfot.org">admin@wfot.org</a>.</i></p>`;
@@ -154,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
          }
       } else {
          // Bookings are not open yet
-         responseHtml += `<h4>Booking</h4><p>Bookings for lunches and social events will be available soon. Please check back later.</p>`;
+         responseHtml += `<h3>Booking</h3><p>Bookings for lunches and social events will be available soon. Please check back later.</p>`;
       }
       return { html: responseHtml, bookingInfo: bookingInfo };
    }
@@ -166,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!data.booking || !data.booking.id) {
          // No booking exists yet, need link to create one
          return {
-            html: `<h4>Booking</h4><p>You may now book lunches and social events.</p><div id="${bookingPlaceholderId}"><i>Loading booking link...</i></div>`,
+            html: `<h3 class="booking-heading">Booking</h3><p>You may now book lunches and social events.</p><div id="${bookingPlaceholderId}"><i>Loading booking link...</i></div>`,
             needsLink: true,
             registrationId: data.registration?.id, // Pass registration ID needed for link generation
             isEdit: false
@@ -184,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
          if (paymentMethod === 'Stripe') {
             if (paymentStatus === 'Pending' || paymentStatus === 'Unpaid') {
                return {
-                  html: `<h4>Booking</h4>
+                  html: `<h3 class="booking-heading">Booking</h3>
                          <p>You have started a booking but have not completed payment via Stripe. Please use the link below to complete your payment.</p>
                          <div id="${bookingPlaceholderId}"><i>Loading payment link...</i></div>`,
                   needsLink: true,
@@ -194,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             // Unusual state for Stripe
             return {
-               html: `<h4>Booking</h4>
+               html: `<h3 class="booking-heading">Booking</h3>
                       <p>Your booking status is unusual (Booking: Pending, Payment: ${paymentStatus}, Method: Stripe). 
                       Please contact <a href="mailto:admin@wfot.org">admin@wfot.org</a> for assistance.</p>`,
                needsLink: false,
@@ -202,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
          }
          if (paymentMethod === 'Cash') {
             return {
-               html: `<h4>Booking</h4>
+               html: `<h3 class="booking-heading">Booking</h3>
                       <p>You have a pending booking to be paid by cash. You can edit your booking if needed:</p>
                       <div id="${bookingPlaceholderId}"><i>Loading booking link...</i></div>
                       <p>Please remember to bring cash for payment during the event.</p>`,
@@ -213,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
          }
          // Pending with other/unknown payment method
          return {
-            html: `<h4>Booking</h4>
+            html: `<h3 class="booking-heading">Booking</h3>
                    <p>Your booking is pending with an unrecognized payment method. Please contact 
                    <a href="mailto:admin@wfot.org">admin@wfot.org</a> for assistance.</p>`,
             needsLink: false,
@@ -241,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
          }
 
          return {
-            html: `<h4>Booking</h4>
+            html: `<h3 class="booking-heading">Booking</h3>
                    <p>${message}</p>
                    <p>You can <a href="${confirmationUrl}" target="_blank">view your booking confirmation</a>.</p>
                    <p>${instructions}</p>`,
@@ -251,7 +252,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (bookingStatus === 'Cancelled') {
          return {
-            html: `<h4>Booking</h4>
+            html: `<h3 class="booking-heading">Booking</h3>
                    <p>Your booking has been cancelled. If you believe this is an error, please contact <a href="mailto:admin@wfot.org">admin@wfot.org</a>.</p>`,
             needsLink: false,
          };
@@ -259,7 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Handle Unknown booking status
       return {
-         html: `<h4>Booking</h4>
+         html: `<h3 class="booking-heading">Booking</h3>
                 <p>Your booking has an unusual status (${bookingStatus}). Please contact 
                 <a href="mailto:admin@wfot.org">admin@wfot.org</a> for assistance.</p>`,
          needsLink: false,
