@@ -13,6 +13,17 @@ use WFOT\Services\PdfService;
 use WFOT\Services\EmailService;
 use WFOT\Services\ConfirmationCacheService;
 
+function renderError($heading, $message, $code = 400) {
+    global $meetingId;
+    http_response_code($code);
+    $errorHeading = $heading;
+    $errorMessage = $message;
+    include dirname(__DIR__, 2) . '/templates/booking-header.php';
+    include dirname(__DIR__, 2) . '/templates/error.php';
+    include dirname(__DIR__, 2) . '/templates/booking-footer.php';
+    exit;
+}
+
 
 $bookingId = isset($_GET['booking'])
     ? preg_replace('/[^a-zA-Z0-9]/', '', $_GET['booking'])
@@ -50,25 +61,23 @@ if ($sessionId) {
         }
     } catch (Exception $e) {
         error_log("Error retrieving Stripe session $sessionId: " . $e->getMessage());
-        http_response_code(400);
-        echo 'Invalid session ID';
-        exit;
+        renderError('Error', 'Invalid session ID', 400);
     }
 }
 
 if(!$bookingId && !$registrationId){
-    http_response_code(400); echo 'Missing parameter'; exit;
+    renderError('Error', 'Missing parameter', 400);
 }
 
 if($registrationId){
     $validToken = env('DEBUG') === true || TokenService::check($registrationId, $token ?? '');
     if (!$validToken) {
-        http_response_code(403); echo 'Invalid token'; exit;
+        renderError('Access Denied', 'Invalid token', 403);
     }
     $reg = $regRepo->find($registrationId);
     // Added check: if the record appears to be a booking (has Payment Status), then treat it as an invalid registration ID.
     if(!$reg || isset($reg['fields']['Payment Status'])){
-        http_response_code(404); echo 'Registration not found or invalid ID provided.'; exit;
+        renderError('Not Found', 'Registration not found or invalid ID provided.', 404);
     }
     $meetingId = $reg['fields']['Meeting ID'] ?? null;
     $booking = $bookingRepo->findByRegistration($registrationId);
@@ -81,7 +90,7 @@ if($registrationId){
 } else {
     $validToken = false; // No token validation for direct booking access
     $booking = $bookingRepo->find($bookingId);
-    if(!$booking){ http_response_code(404); echo 'Booking not found'; exit; }
+    if(!$booking){ renderError('Not Found', 'Booking not found', 404); }
     $registrationId = $booking['fields']['Registration'][0] ?? null;
     $reg = $regRepo->find($registrationId);
     $meetingId = $reg['fields']['Meeting ID'] ?? null;
