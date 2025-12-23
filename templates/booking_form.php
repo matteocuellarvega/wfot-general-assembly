@@ -48,7 +48,7 @@ $selectedItems = $selectedItems ?? [];
 
     <h3>Subtotal: $<span id="subtotal">0.00</span> USD</h3>
     <div id="error-message" style="color: red; margin-top: 10px; margin-bottom: 10px;"></div>
-    <button type="submit" id="confirm">Confirm booking</button>
+    <button type="submit" id="confirm"><?= (isset($_GET['edit']) && $_GET['edit'] === 'true') ? 'Update Booking' : 'Confirm booking' ?></button>
   </form>
 </article>
 

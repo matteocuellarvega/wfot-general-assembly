@@ -63,6 +63,10 @@ document.addEventListener("DOMContentLoaded", function () {
                getBookingLink(statusResult.bookingInfo.registrationId)
                   .then(bookingUrl => {
                      if (bookingUrl) {
+                        // Append &edit=true if this is an existing booking
+                        if (statusResult.bookingInfo.isEdit) {
+                           bookingUrl += (bookingUrl.includes('?') ? '&' : '?') + 'edit=true';
+                        }
                         // Replace placeholder with the actual button/link
                         bookingPlaceholder.innerHTML = `<a class="elementor-button elementor-size-lg" href="${bookingUrl}" target="_blank">Booking Form / Complete Payment</a>`;
                      } else {
@@ -119,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
    // Helper function for registration status
-   // Returns an object: { html: "...", bookingInfo: { needsLink: boolean, registrationId: "..." } | null }
+   // Returns an object: { html: "...", bookingInfo: { needsLink: boolean, registrationId: "...", isEdit: boolean } | null }
    function handleRegistrationStatus(data, allowBooking, currentUser) {
       let bookingInfo = null; // Initialize booking info
 
@@ -142,7 +146,11 @@ document.addEventListener("DOMContentLoaded", function () {
          const bookingStatusResult = handleBookingStatus(data);
          responseHtml += bookingStatusResult.html; // Add the booking HTML (might contain placeholder)
          if (bookingStatusResult.needsLink) {
-            bookingInfo = { needsLink: true, registrationId: bookingStatusResult.registrationId };
+            bookingInfo = { 
+               needsLink: true, 
+               registrationId: bookingStatusResult.registrationId,
+               isEdit: bookingStatusResult.isEdit
+            };
          }
       } else {
          // Bookings are not open yet
@@ -161,6 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
             html: `<h4>Booking</h4><p>You may now book lunches and social events.</p><div id="${bookingPlaceholderId}"><i>Loading booking link...</i></div>`,
             needsLink: true,
             registrationId: data.registration?.id, // Pass registration ID needed for link generation
+            isEdit: false
          };
       }
 
@@ -180,6 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
                          <div id="${bookingPlaceholderId}"><i>Loading payment link...</i></div>`,
                   needsLink: true,
                   registrationId: registrationId,
+                  isEdit: true
                };
             }
             // Unusual state for Stripe
@@ -198,6 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
                       <p>Please remember to bring cash for payment during the event.</p>`,
                needsLink: true,
                registrationId: registrationId,
+               isEdit: true
             };
          }
          // Pending with other/unknown payment method
