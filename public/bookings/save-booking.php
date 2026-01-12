@@ -86,7 +86,7 @@ foreach ($itemIds as $iid) {
         'Type' => $fields['Type'],
         'Item Total' => $fields['Cost'],
         'Booking' => [$bookingId],
-        'Bookable Item ID' => $iid  // Added to match Booked Items to Bookable Items
+        'Bookable Item ID' => $fields['Bookable Item ID']  // Added to match Booked Items to Bookable Items
     ]);
     if ($createdBookedItem && isset($createdBookedItem['id'])) {
         $newBookedItemIds[] = $createdBookedItem['id'];
