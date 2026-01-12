@@ -7,8 +7,8 @@
 $selectedItems = $selectedItems ?? [];
 ?>
 <article class="booking-form">
-  <h2>Book items for <?=htmlspecialchars($reg['fields']['Meeting'])?></h2>
-  <p>Booking For: <?=htmlspecialchars(($reg['fields']['First Name'] ?? '') . ' ' . ($reg['fields']['Last Name'] ?? '') . ' (' . ($reg['fields']['Email'] ?? '') . ')')?></p>
+  <h2><?=htmlspecialchars($reg['fields']['Meeting'])?> Booking Form</h2>
+  <p>Booking for: <?=htmlspecialchars(($reg['fields']['First Name'] ?? '') . ' ' . ($reg['fields']['Last Name'] ?? '') . ' (' . ($reg['fields']['Email'] ?? '') . ')')?></p>
   <form method="post" id="booking-form">
     <input type="hidden" name="booking_id" value="<?=htmlspecialchars($bookingId)?>">
     <input type="hidden" name="csrf_token" value="<?=htmlspecialchars(generateCsrfToken())?>">
@@ -35,7 +35,7 @@ $selectedItems = $selectedItems ?? [];
     </table>
 
     <label for="diet">Dietary requirements</label>
-    <textarea name="diet" id="diet" rows="3"><?= htmlspecialchars($booking['fields']['Dietary Requirements'] ?? '') ?></textarea>
+    <textarea name="diet" id="diet" rows="3" placeholder="Please advise us of any dietary requirements (optional)"><?= htmlspecialchars($booking['fields']['Dietary Requirements'] ?? '') ?></textarea>
 
     <div id="payment-section" style="display: none;">
         <label for="paymethod">Payment method</label>

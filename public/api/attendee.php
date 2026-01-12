@@ -227,6 +227,12 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
         exit;
     }
 
+    $paymentStatus = getField($booking, 'Payment Status');
+    if ($paymentStatus !== 'Paid' && $paymentStatus !== 'Not Required') {
+        echo json_encode(['status' => 'payment_pending']);
+        return;
+    }
+
     $filter = sprintf(
         "AND({Booking}='%s',{Bookable Item ID}='%s')",
         addslashes($bookingId),
@@ -239,7 +245,7 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
 
     if (empty($items)) {
         http_response_code(404);
-        echo json_encode(['error' => 'Booked item not found.']);
+        echo json_encode(['error' => formatAttendeeName($booking) . ' has not booked this item.']);
         exit;
     }
 
