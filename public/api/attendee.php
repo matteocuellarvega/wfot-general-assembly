@@ -12,7 +12,6 @@ const MEMBER_ORGS_TABLE = 'tbli6ExwLjMLb3Hca';
 const PING_HEADER = 'HTTP_X_WFOT_PING';
 const CHECKIN_DETAIL_FIELDS = ['Session', 'Check In Date', 'Check In By', 'First Name', 'Last Name'];
 const CHECKIN_LIST_FIELDS = ['Session', 'Check In Date', 'Check In By'];
-const BOOKED_ITEM_REDEEM_FIELDS = ['Redeemed', 'Redeemed By'];
 
 header('Content-Type: application/json');
 
@@ -235,8 +234,7 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
     );
     $items = $airtable->all(BOOKED_ITEMS_TABLE, [
         'filterByFormula' => $filter,
-        'maxRecords' => 1,
-        'fields' => BOOKED_ITEM_REDEEM_FIELDS,
+        'maxRecords' => 1
     ]);
 
     if (empty($items)) {
