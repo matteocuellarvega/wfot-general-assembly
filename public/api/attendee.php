@@ -190,7 +190,7 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
 {
     $registrationId = sanitizeRecordId($payload['registrationId'] ?? null);
     $bookingId = sanitizeRecordId($payload['bookingId'] ?? null);
-    $bookableItemId = sanitizeRecordId($payload['bookableItemId'] ?? null);
+    $bookableItemId = trim((string) ($payload['bookableItemId'] ?? ''));
     $user = trim((string) ($payload['user'] ?? ''));
 
     error_log("Redeem Item called with bookingId: $bookingId, registrationId: $registrationId, bookableItemId: $bookableItemId, user: $user");
