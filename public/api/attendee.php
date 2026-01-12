@@ -251,7 +251,7 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
     if ($alreadyRedeemed) {
         echo json_encode([
             'status' => 'already_redeemed',
-            'booked_item_id' => $item['id'],
+            'redeemed_item' => $item['Item'] ?? '',
             'attendee_name' => formatAttendeeName($item),
             'redeemed_by' => getField($item, 'Redeemed By'),
         ]);
@@ -266,7 +266,7 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
         echo json_encode([
             'status' => 'ok',
             'attendee_name' => formatAttendeeName($item),
-            'booked_item_id' => $item['id']
+            'redeemed_item' => $item['Item'] ?? ''
         ]);
     } catch (Exception $e) {
         http_response_code(500);
