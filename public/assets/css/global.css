@@ -85,6 +85,7 @@ body {
 
 .booking-details {
     flex: 1;
+    font-size: .85rem;
 }
 
 .booking-details p {

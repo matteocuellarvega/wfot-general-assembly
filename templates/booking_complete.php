@@ -69,11 +69,15 @@
 
 <div class="confirmation-footer no-print">
   <p>A copy of this confirmation has been emailed to <?=safe_email($booking['fields']['Email'][0] ?? '')?>. If you do not receive it, please check your spam folder or contact us for assistance.</p>
-  <p>This confirmation is not proof of payment; if you paid via Stripe, refer to your Stripe receipt, and if you are paying in cash, you will receive a receipt upon payment.</p>
+  <?php if (($booking['fields']['Payment Method'] ?? '') === 'Cash'): ?>
+    <p>Please note that we can only accept cash payments in USD at the event. Please ensure you bring the exact amount as we may not have change available.</p>
+  <?php endif; ?>
   <p>Thank you for your booking!</p>
 </div>
 
 <div class="confirmation-footer only-print">
-  <p>Please keep a copy of your confirmation. This confirmation is not proof of payment; if you paid via Stripe, refer to your Stripe receipt, and if you are paying in cash, you will receive a receipt upon payment.</p>
+  <?php if (($booking['fields']['Payment Method'] ?? '') === 'Cash'): ?>
+    <p>Please note that we can only accept cash payments in USD at the event. Please ensure you bring the exact amount as we may not have change available.</p>
+  <?php endif; ?>
   <p>Thank you for your booking!</p>
 </div>
