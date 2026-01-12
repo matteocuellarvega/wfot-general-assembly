@@ -1,7 +1,10 @@
 <?php
 /** @var array $booking @var array $items Array of booked item records */
 ?>
-<h2>Booking confirmation</h2>
+<div class="heading">
+  <h2>Booking confirmation</h2>
+  <button onclick="window.print()" class="print-button no-print">Print/Save</button>
+</div>
 
 <article class="booking-info-container">
   <div class="booking-info">

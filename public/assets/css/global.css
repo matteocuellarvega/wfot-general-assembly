@@ -63,6 +63,27 @@ body {
     justify-content: flex-start;
 }
 
+.heading{
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--pico-typography-spacing-vertical);
+}
+
+.heading h2{
+    margin: 0;
+}
+
+.heading .print-button{
+    font-size: 0.9rem;
+    line-height: 1.2em;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
 .booking-details {
     flex: 1;
 }
