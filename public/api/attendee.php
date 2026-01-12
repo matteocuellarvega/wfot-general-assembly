@@ -252,6 +252,7 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
         echo json_encode([
             'status' => 'already_redeemed',
             'booked_item_id' => $item['id'],
+            'attendee_name' => formatAttendeeName($item),
             'redeemed_by' => getField($item, 'Redeemed By'),
         ]);
         return;
@@ -262,7 +263,11 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
             'Redeemed' => true,
             'Redeemed By' => $user,
         ]);
-        echo json_encode(['status' => 'ok', 'booked_item_id' => $item['id']]);
+        echo json_encode([
+            'status' => 'ok',
+            'attendee_name' => formatAttendeeName($item),
+            'booked_item_id' => $item['id']
+        ]);
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to redeem item.']);
