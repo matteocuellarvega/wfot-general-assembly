@@ -124,6 +124,23 @@ table .text-right {
     width: 50%;
 }
 
+.info-icon {
+    display: inline;
+    margin-left: .25rem;
+}
+
+.info-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+body footer {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.8rem;
+    color: var(--pico-color);
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -271,5 +288,9 @@ table .text-right {
     thead td,
     thead th {
         font-weight: bold;
+    }
+
+    body footer{
+        display: none;
     }
 }

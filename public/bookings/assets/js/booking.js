@@ -126,9 +126,14 @@ $(function(){
   function handlePaymentMethodChange() {
     const method = $(this).val();
     if (method === 'Stripe') {
-      $confirmButton.text('Pay with Stripe')
-    } else {
+      $confirmButton.text('Pay with Credit/Debit Card');
+      $('.cash-notice').hide();
+    } if (method === 'Cash'){
       $confirmButton.text('Confirm booking');
+      $('.cash-notice').show();
+    } else {
+        $confirmButton.text('Confirm booking');
+        $('.cash-notice').hide();
     }
   }
   
