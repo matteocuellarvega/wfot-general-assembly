@@ -22,6 +22,7 @@
 body {
     font-family: 'Barlow', sans-serif;
     font-weight: 200;
+    margin-top: 2rem;
 }
 
 .only-print {
@@ -50,7 +51,6 @@ body {
     height: 80px;
     width: auto;
     display: block;
-    margin-block-start: 2rem;
     margin-block-end: 2rem;
 }
 
