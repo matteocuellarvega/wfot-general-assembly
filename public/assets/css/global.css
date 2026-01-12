@@ -22,7 +22,6 @@
 body {
     font-family: 'Barlow', sans-serif;
     font-weight: 200;
-    margin-top: 2rem;
 }
 
 .only-print {
@@ -63,7 +62,7 @@ body {
     justify-content: flex-start;
 }
 
-.heading{
+.heading {
     display: flex;
     flex-direction: row;
     align-content: center;
@@ -72,11 +71,11 @@ body {
     margin-bottom: var(--pico-typography-spacing-vertical);
 }
 
-.heading h2{
+.heading h2 {
     margin: 0;
 }
 
-.heading .print-button{
+.heading .print-button {
     font-size: 0.9rem;
     line-height: 1.2em;
     padding: 0.5rem 1rem;
@@ -133,13 +132,16 @@ body {
 .notification.error {
     background-color: #F44336;
 }
+
 .items-table .text-right,
 table .text-right {
     text-align: right;
 }
+
 .no-border {
     border: none;
 }
+
 .bookable-items-table td:first-child,
 .bookable-items-table th:first-child {
     width: 50%;
@@ -240,7 +242,7 @@ body footer {
 @media print {
     html {
         padding: 0;
-        margin: 48px;
+        margin: 24px;
     }
 
     body {
@@ -250,15 +252,9 @@ body footer {
         padding: 48px;
     }
 
-    @page {
-        size: a4;
-        margin: 0;
-        padding: 0;
-    }
-
     #logo {
-        margin-top: 0;
         margin-bottom: 48px;
+        height: 72px;
     }
 
     .container {
@@ -313,7 +309,7 @@ body footer {
         font-weight: bold;
     }
 
-    body footer{
+    body footer {
         display: none;
     }
 }
