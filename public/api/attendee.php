@@ -265,8 +265,7 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
         echo json_encode([
             'status' => 'ok',
             'redeemed_item' => getField($item, 'Item'),
-            'attendee_name' => formatAttendeeName($item),
-            'redeemed_by' => getField($item, 'Redeemed By')
+            'attendee_name' => formatAttendeeName($item)
         ]);
     } catch (Exception $e) {
         http_response_code(500);
