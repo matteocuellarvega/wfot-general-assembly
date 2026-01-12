@@ -193,6 +193,8 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
     $bookableItemId = sanitizeRecordId($payload['bookableItemId'] ?? null);
     $user = trim((string) ($payload['user'] ?? ''));
 
+    error_log("Redeem Item called with bookingId: $bookingId, registrationId: $registrationId, bookableItemId: $bookableItemId, user: $user");
+
     if (!$bookableItemId || $user === '') {
         http_response_code(400);
         echo json_encode(['error' => 'bookableItemId and user are required.']);
