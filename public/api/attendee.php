@@ -193,8 +193,6 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
     $bookableItemId = trim((string) ($payload['bookableItemId'] ?? ''));
     $user = trim((string) ($payload['user'] ?? ''));
 
-    error_log("Redeem Item called with bookingId: $bookingId, registrationId: $registrationId, bookableItemId: $bookableItemId, user: $user");
-
     if (!$bookableItemId || $user === '') {
         http_response_code(400);
         echo json_encode(['error' => 'bookableItemId and user are required.']);
@@ -253,7 +251,8 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
             'status' => 'already_redeemed',
             'redeemed_item' => getField($item, 'Item'),
             'attendee_name' => formatAttendeeName($item),
-            'redeemed_by' => getField($item, 'Redeemed By')
+            'redeemed_by' => getField($item, 'Redeemed By'),
+            'redeemed_at' => getField($item, 'Redeemed At')
         ]);
         return;
     }
