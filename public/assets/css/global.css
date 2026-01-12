@@ -293,11 +293,13 @@ body footer {
 
     .booking-details {
         float: left;
+        width: 75%;
     }
 
     .booking-qr-code {
         float: right;
-        margin-left: 2rem;
+        width: 25%;
+        text-align: right;
     }
 
     .items-table-container {
