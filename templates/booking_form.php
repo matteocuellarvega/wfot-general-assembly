@@ -27,7 +27,7 @@ $selectedItems = $selectedItems ?? [];
           <td class="text-right">$<?=number_format($f['Cost'],2)?> USD</td>
           <td class="text-right">
             <input type="checkbox" data-cost="<?=$f['Cost']?>" name="item[]" value="<?=$row['id']?>"
-            <?=in_array($row['id'], $selectedItems) ? 'checked' : '';?>>
+            <?=in_array($f['Bookable Item ID'], $selectedItems) ? 'checked' : '';?>>
           </td>
         </tr>
       <?php endforeach; ?>
