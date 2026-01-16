@@ -18,7 +18,7 @@ class ItemRepository
         $formula = sprintf(
             "AND({Meeting ID}='%s', FIND('%s',{Available To})>0)",
             $meetingId,
-            in_array($role,['Delegate','1st Alternate','2nd Alternate','Regional Group Representative']) ? 'Key Person' : 'Observer'
+            in_array($role,['Delegate','Acting Delegate','1st Alternate','Acting 1st Alternate','2nd Alternate','Acting 2nd Alternate','Regional Group Representative']) ? 'Key Person' : 'Observer'
         );
         $records = [];
 

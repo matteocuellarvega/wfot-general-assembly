@@ -182,6 +182,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Handle Pending Bookings
       if (bookingStatus === 'Pending') {
+         if (!paymentMethod) {
+            return {
+               html: `<h3 class="booking-heading">Booking</h3>
+                      <p>You have a pending booking. Please use the link below to complete your booking.</p>
+                      <div id="${bookingPlaceholderId}"><i>Loading booking link...</i></div>`,
+               needsLink: true,
+               registrationId: registrationId,
+               isEdit: true
+            };
+         }
+
          if (paymentMethod === 'Stripe') {
             if (paymentStatus === 'Pending' || paymentStatus === 'Unpaid') {
                return {
