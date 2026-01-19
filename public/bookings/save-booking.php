@@ -184,6 +184,9 @@ if ($total == 0) {
     if (is_array($customerEmail)) {
         $customerEmail = $customerEmail[0] ?? null;
     }
+    if (is_string($customerEmail)) {
+        $customerEmail = trim($customerEmail);
+    }
 
     try {
         $session = $stripe->createCheckoutSession($stripeItems, 'USD', $bookingId, $successUrl, $cancelUrl , $customerEmail);
