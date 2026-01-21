@@ -321,6 +321,7 @@ function buildBookingBlock(?array $booking, AirtableService $airtable): ?array
         'Booking ID' => $booking['id'],
         'Created' => getField($booking, 'Created'),
         'Status' => getField($booking, 'Status'),
+        'Total' => getField($booking, 'Total'),
         'Payment Method' => getField($booking, 'Payment Method'),
         'Payment Amount' => getField($booking, 'Payment Amount'),
         'Payment Status' => getField($booking, 'Payment Status'),
