@@ -72,6 +72,9 @@ switch ($action) {
     case 'redeemItem':
         handleRedeemItem($payload, $bookingRepo, $regRepo, $airtable);
         break;
+    case 'collectPayment':
+        handleCollectPayment($payload, $bookingRepo);
+        break;
     default:
         http_response_code(400);
         echo json_encode(['error' => 'Unknown action.']);
@@ -276,6 +279,44 @@ function handleRedeemItem(array $payload, BookingRepository $bookingRepo, Regist
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to redeem item.']);
+    }
+}
+
+function handleCollectPayment(array $payload, BookingRepository $bookingRepo): void
+{
+    $bookingId = sanitizeRecordId($payload['bookingId'] ?? null);
+    $user = trim((string) ($payload['user'] ?? ''));
+    $paymentAmount = $payload['paymentAmount'] ?? null;
+
+    if (!$bookingId || $user === '' || $paymentAmount === null || !is_numeric($paymentAmount)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'bookingId, user, and paymentAmount are required.']);
+        exit;
+    }
+
+    $booking = $bookingRepo->find($bookingId);
+    if (!$booking) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Booking not found.']);
+        exit;
+    }
+
+    try {
+        $bookingRepo->update($bookingId, [
+            'Payment Method' => 'Cash',
+            'Payment Status' => 'Paid',
+            'Payment Amount' => (float) $paymentAmount,
+            'Payment Reference' => 'Cash handed to ' . $user,
+            'Payment Date' => date('Y-m-d')
+        ]);
+
+        echo json_encode([
+            'status' => 'ok',
+            'message' => 'Payment collected successfully.'
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to collect payment.']);
     }
 }
 
