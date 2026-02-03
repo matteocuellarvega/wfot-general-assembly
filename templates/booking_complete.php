@@ -2,7 +2,13 @@
 /** @var array $booking @var array $items Array of booked item records */
 ?>
 <div class="heading">
-  <h2>Booking confirmation</h2>
+  <h2>
+    <?php if (($booking['fields']['Payment Status'] ?? '') === 'Paid' && ($booking['fields']['Payment Method'] ?? '') === 'Cash'): ?>
+      Booking receipt
+    <?php else: ?>
+      Booking confirmation
+    <?php endif; ?>
+  </h2>
   <button onclick="window.print()" class="print-button no-print">Print/Save</button>
 </div>
 
@@ -69,14 +75,14 @@
 
 <div class="confirmation-footer no-print">
   <p>A copy of this confirmation has been emailed to <?=safe_email($booking['fields']['Email'][0] ?? '')?>. If you do not receive it, please check your spam folder or contact us for assistance.</p>
-  <?php if (($booking['fields']['Payment Method'] ?? '') === 'Cash'): ?>
+  <?php if (($booking['fields']['Payment Method'] ?? '') === 'Cash' && ($booking['fields']['Payment Status'] ?? '') !== 'Paid'): ?>
     <p>Please note that we can only accept cash payments in USD at the event. Please ensure you bring the exact amount as we may not have change available.</p>
   <?php endif; ?>
   <p>Thank you for your booking!</p>
 </div>
 
 <div class="confirmation-footer only-print">
-  <?php if (($booking['fields']['Payment Method'] ?? '') === 'Cash'): ?>
+  <?php if (($booking['fields']['Payment Method'] ?? '') === 'Cash' && ($booking['fields']['Payment Status'] ?? '') !== 'Paid'): ?>
     <p>Please note that we can only accept cash payments in USD at the event. Please ensure you bring the exact amount as we may not have change available.</p>
   <?php endif; ?>
   <p>Thank you for your booking!</p>
