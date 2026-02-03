@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../src/bootstrap.php';
 use WFOT\Repository\BookingRepository;
 use WFOT\Repository\RegistrationRepository;
 use WFOT\Services\AirtableService;
+use WFOT\Services\QrCodeService;
+use WFOT\Services\TokenService;
 
 const BOOKED_ITEMS_TABLE = 'tbluEJs6UHGhLbvJX';
 const CHECKINS_TABLE = 'tbluoEBBrpvvJnWak';
@@ -74,6 +76,9 @@ switch ($action) {
         break;
     case 'collectPayment':
         handleCollectPayment($payload, $bookingRepo);
+        break;
+    case 'getBookingQr':
+        handleGetBookingQr($payload, $regRepo);
         break;
     default:
         http_response_code(400);
@@ -317,6 +322,39 @@ function handleCollectPayment(array $payload, BookingRepository $bookingRepo): v
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(['error' => 'Failed to collect payment.']);
+    }
+}
+
+function handleGetBookingQr(array $payload, RegistrationRepository $regRepo): void
+{
+    $registrationId = sanitizeRecordId($payload['registrationId'] ?? null);
+
+    if (!$registrationId) {
+        http_response_code(400);
+        echo json_encode(['error' => 'registrationId is required.']);
+        exit;
+    }
+
+    $registration = $regRepo->find($registrationId);
+    if (!$registration) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Registration not found.']);
+        exit;
+    }
+
+    try {
+        $token = TokenService::generate($registrationId);
+        $baseUrl = rtrim(env('APP_URL'), '/');
+        $bookingUrl = $baseUrl . '/bookings?registration=' . urlencode($registrationId) . '&tok=' . urlencode($token) . '&edit=true';
+        $qrCode = QrCodeService::generateDataUri($bookingUrl);
+
+        echo json_encode([
+            'bookingUrl' => $bookingUrl,
+            'qrCode' => $qrCode,
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to generate booking QR code.']);
     }
 }
 
